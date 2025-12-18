@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, easeInOut } from 'motion/react';
 
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -86,7 +86,7 @@ export const LiquidGlassCard = ({
           height: height || 'auto',
           transition: {
             duration: 0.4,
-            ease: [0.5, 1.5, 0.5, 1],
+            ease: easeInOut,
           },
         },
         expanded: {
@@ -94,7 +94,7 @@ export const LiquidGlassCard = ({
           height: expandedHeight || 'auto',
           transition: {
             duration: 0.4,
-            ease: [0.5, 1.5, 0.5, 1],
+            ease: easeInOut,
           },
         },
       }
@@ -105,30 +105,26 @@ export const LiquidGlassCard = ({
   const motionProps =
     draggable || expandable
       ? {
-          variants: expandable ? containerVariants : undefined,
-          animate: expandable
-            ? isExpanded
-              ? 'expanded'
-              : 'collapsed'
-            : undefined,
-          onClick: expandable ? handleToggleExpansion : undefined,
-          drag: draggable,
-          dragConstraints: draggable
-            ? { left: 0, right: 0, top: 0, bottom: 0 }
-            : undefined,
-          dragElastic: draggable ? 0.3 : undefined,
-          dragTransition: draggable
-            ? {
-                bounceStiffness: 300,
-                bounceDamping: 10,
-                power: 0.3,
-              }
-            : undefined,
-          whileDrag: draggable ? { scale: 1.02 } : undefined,
+          ...(expandable && {
+            variants: containerVariants,
+            animate: isExpanded ? 'expanded' : 'collapsed',
+            onClick: handleToggleExpansion,
+          }),
+          ...(draggable && {
+            drag: true,
+            dragConstraints: { left: 0, right: 0, top: 0, bottom: 0 },
+            dragElastic: 0.3,
+            dragTransition: {
+              bounceStiffness: 300,
+              bounceDamping: 10,
+              power: 0.3,
+            },
+            whileDrag: { scale: 1.02 },
+          }),
           whileHover: { scale: 1.01 },
           whileTap: { scale: 0.98 },
         }
-      : {};
+      : ({} as any);
 
   return (
     <>
