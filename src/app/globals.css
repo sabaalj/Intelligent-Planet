@@ -123,3 +123,41 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 22s linear infinite;
+}
+
+.perspective {
+  perspective: 1200px;
+}
+
+@keyframes planetSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes planetFloat {
+  0%,100% { transform: translateY(0px); }
+  50%     { transform: translateY(-10px); }
+}
+
+.planet-spin {
+  animation: planetSpin 90s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.planet-float {
+  animation: planetFloat 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+
+
