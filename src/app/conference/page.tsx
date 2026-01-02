@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { LiquidGlassCard } from "@/components/ui/liquid-glass";
-import { Navbar } from "@/app/navbar";
+import { Navbar } from "@/components/Navbar";
 
 export default function Conference() {
   return (

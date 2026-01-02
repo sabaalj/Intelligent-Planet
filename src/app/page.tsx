@@ -3,7 +3,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Navbar } from "@/app/navbar";
+
+/**
+ * =========================
+ * TOP-LEVEL IMPORTS
+ * =========================
+ */
+import { Navbar } from "@/components/Navbar";
+import Hero from "@/components/sections/Hero";
+import Judges from "@/components/sections/Judges"
+import Sponsors from "@/components/sections/Sponsors";
 import { SectionFrame } from "@/components/SectionFrame";
 import {
   ArrowRight,
@@ -23,7 +32,12 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-// Animation variants
+/**
+ * =========================
+ * ANIMATION VARIANTS
+ * (used across multiple sections)
+ * =========================
+ */
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (custom = 0) => ({
@@ -96,7 +110,13 @@ const slideFromRight = {
   },
 };
 
-// Registration Modal Component
+/**
+ * ============================================================
+ * COMPONENT 1: RegistrationModal
+ * - Used by the "Start Hacking" button (and Navbar register button)
+ * - Controlled from Home() via isRegisterModalOpen state
+ * ============================================================
+ */
 function RegistrationModal({
   isOpen,
   onClose,
@@ -104,6 +124,7 @@ function RegistrationModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  // Handles ESC close + body scroll locking
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -123,12 +144,16 @@ function RegistrationModal({
   return (
     <AnimatePresence>
       {isOpen && (
+        /**
+         * MODAL OVERLAY WRAPPER (full screen)
+         */
         <motion.div
           className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
+          {/* CLICK-TO-CLOSE BACKDROP */}
           <motion.div
             className="absolute inset-0 bg-black/80 backdrop-blur-md"
             onClick={onClose}
@@ -137,6 +162,7 @@ function RegistrationModal({
             exit={{ opacity: 0 }}
           />
 
+          {/* MODAL CARD */}
           <motion.div
             className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.6),0_0_1px_rgba(255,255,255,0.1)_inset]"
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -144,9 +170,12 @@ function RegistrationModal({
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
+            {/* DECORATIVE GRADIENT OVERLAY */}
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/10 via-transparent to-blue-500/10 opacity-50 pointer-events-none" />
 
+            {/* MODAL CONTENT */}
             <div className="relative p-8 sm:p-12">
+              {/* CLOSE BUTTON */}
               <motion.button
                 onClick={onClose}
                 className="absolute top-6 right-6 p-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all"
@@ -156,6 +185,7 @@ function RegistrationModal({
                 <X className="h-5 w-5" />
               </motion.button>
 
+              {/* HEADER */}
               <motion.div
                 className="text-center mb-8"
                 initial={{ opacity: 0, y: 10 }}
@@ -171,6 +201,7 @@ function RegistrationModal({
                 </p>
               </motion.div>
 
+              {/* FORM */}
               <motion.form
                 className="space-y-5"
                 initial={{ opacity: 0 }}
@@ -208,6 +239,7 @@ function RegistrationModal({
                   />
                 </div>
 
+                {/* SUBMIT */}
                 <motion.button
                   type="submit"
                   className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition-all"
@@ -225,7 +257,14 @@ function RegistrationModal({
   );
 }
 
-// Infinite Scroll Marquee Component
+/**
+ * ============================================================
+ * COMPONENT 2: InfiniteScrollMarquee
+ * - Used for Speakers and Judges horizontal scrolling
+ * - Duplicates children to create looping effect
+ * - Respects prefers-reduced-motion
+ * ============================================================
+ */
 function InfiniteScrollMarquee({
   children,
   speed = 50,
@@ -238,6 +277,7 @@ function InfiniteScrollMarquee({
   const [isPaused, setIsPaused] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
+  // detect reduced-motion preference
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);
@@ -249,6 +289,7 @@ function InfiniteScrollMarquee({
 
   const duplicatedChildren = [...children, ...children, ...children];
 
+  // reduced motion fallback: normal horizontal scroll
   if (prefersReducedMotion) {
     return (
       <div className="overflow-x-auto scrollbar-hide">
@@ -257,6 +298,7 @@ function InfiniteScrollMarquee({
     );
   }
 
+  // animated marquee
   return (
     <div
       className="relative overflow-hidden py-8"
@@ -292,7 +334,12 @@ function InfiniteScrollMarquee({
   );
 }
 
-// Judge/Speaker Card Component
+/**
+ * ============================================================
+ * COMPONENT 3: PersonCard
+ * - Used in Judges marquee (placeholder, no image currently)
+ * ============================================================
+ */
 function PersonCard({
   name,
   title,
@@ -309,6 +356,7 @@ function PersonCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5 }}
     >
+      {/* CARD VISUAL */}
       <motion.div
         className="aspect-[4/5] rounded-2xl bg-white/[0.05] border border-white/10 overflow-hidden"
         whileHover={{
@@ -322,6 +370,7 @@ function PersonCard({
         transition={{ duration: 0.3, ease: "easeOut" }}
         style={{ transformStyle: "preserve-3d" }}
       />
+      {/* NAME/TITLE */}
       <motion.div
         className="mt-4"
         initial={{ opacity: 0 }}
@@ -335,7 +384,13 @@ function PersonCard({
   );
 }
 
-// Timeline Component - SIMPLIFIED
+/**
+ * ============================================================
+ * COMPONENT 4: Timeline
+ * - Used in "Event Journey" section
+ * - Draws a center line that animates based on scroll progress
+ * ============================================================
+ */
 function Timeline() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -383,7 +438,7 @@ function Timeline() {
 
   return (
     <div ref={timelineRef} className="relative py-6 sm:py-10">
-      {/* Center line - WHITE ONLY */}
+      {/* CENTER LINE (visual spine) */}
       <div className="absolute left-1/2 top-0 bottom-0 w-[1px] -translate-x-1/2">
         <div className="absolute inset-0 bg-white/15" />
 
@@ -397,6 +452,7 @@ function Timeline() {
         {prefersReducedMotion && <div className="absolute inset-0 bg-white" />}
       </div>
 
+      {/* TIMELINE ITEMS */}
       <div className="relative max-w-6xl mx-auto px-4">
         {timelineItems.map((item, index) => (
           <motion.div
@@ -433,9 +489,22 @@ function Timeline() {
   );
 }
 
+/**
+ * ============================================================
+ * PAGE COMPONENT: Home()
+ * - This is the actual page export
+ * - Contains ALL sections rendered in order
+ * ============================================================
+ */
 export default function Home() {
+  /**
+   * Local UI state: controls the Register modal visibility
+   */
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
+  /**
+   * Data: Judges list used by the Judges marquee
+   */
   const judges = [
     { name: "Sarah Connor", title: "CTO, TechCorp" },
     { name: "John Smith", title: "Design Lead, CreativeX" },
@@ -446,202 +515,34 @@ export default function Home() {
   ];
 
   return (
+    /**
+     * =========================
+     * MAIN PAGE WRAPPER
+     * =========================
+     */
     <main className="relative min-h-screen bg-black text-white overflow-x-hidden">
+      {/* ===== START: NAVBAR ===== */}
       <Navbar onRegisterClick={() => setIsRegisterModalOpen(true)} />
+      {/* ===== END: NAVBAR ===== */}
+
+      {/* ===== START: REGISTRATION MODAL (portal overlay) ===== */}
       <RegistrationModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}
       />
+      {/* ===== END: REGISTRATION MODAL ===== */}
 
-      {/* 1. HOME - HERO */}
-      <section
-        id="home"
-        className="relative min-h-screen px-4 flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0a1628] via-[#0f1e33] to-black scroll-mt-20"
-      >
-        <motion.div
-          className="absolute inset-0 z-0"
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        >
-          <div className="absolute inset-0 w-full h-full">
-            <Image
-              src="/MainBackground.png"
-              alt="Main background"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center opacity-40"
-            />
-          </div>
+      {/* ========================================================= */}
+      {/* ===== START SECTION 1: HOME / HERO (id="home") ===== */}
+      {/* ========================================================= */}
+      <Hero/>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 1: HOME / HERO (id="home") ===== */}
+      {/* ======================================================= */}
 
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1e3a]/70 via-[#0d2847]/60 to-[#050d1a]/80" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(10,30,58,0)_0%,rgba(13,40,71,0.3)_40%,rgba(5,13,26,0.7)_100%)]" />
-        </motion.div>
-
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <motion.div
-            className="relative w-[min(950px,88vw)] aspect-square"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{
-              scale: { duration: 1.2, ease: "easeOut" },
-              opacity: { duration: 1.2 },
-            }}
-          >
-            <motion.div
-              className="relative w-full h-full"
-              animate={{
-                y: [0, -15, 0],
-                scale: [1, 1.02, 1],
-              }}
-              transition={{
-                y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-                scale: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-              }}
-            >
-              <Image
-                src="/Globe-Full.png"
-                alt="Intelligent Planet Globe"
-                fill
-                priority
-                sizes="(max-width: 768px) 88vw, 950px"
-                className="object-contain opacity-90 drop-shadow-[0_0_250px_rgba(59,130,246,0.5)]"
-                style={{ filter: "brightness(1.15) saturate(1.1)" }}
-              />
-            </motion.div>
-
-            <motion.div
-              className="absolute inset-0 rounded-full blur-[100px] bg-blue-500/25"
-              animate={{
-                scale: [1, 1.15, 1],
-                opacity: [0.25, 0.4, 0.25],
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            />
-
-            <motion.div
-              className="absolute inset-[-20%] rounded-full blur-[120px] bg-blue-400/10"
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.1, 0.2, 0.1],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.5,
-              }}
-            />
-          </motion.div>
-        </div>
-
-        <motion.div
-          className="relative z-20 text-center max-w-4xl mx-auto px-4"
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.p
-            className="text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-white/60 uppercase"
-            variants={fadeIn}
-          >
-            FEBRUARY 2 – 4, 2026 • KFUPM, DHAHRAN, SAUDI ARABIA
-          </motion.p>
-
-          <motion.h1
-            className="mt-6 text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight"
-            variants={fadeInUp}
-            style={{ textShadow: "0 0 60px rgba(59, 130, 246, 0.5)" }}
-          >
-            INTELLIGENT
-            <br />
-            PLANET
-          </motion.h1>
-
-          <motion.p
-            className="mt-4 text-xs sm:text-sm md:text-base text-white/70"
-            variants={fadeIn}
-            custom={1}
-          >
-            "AI Solutions for an Intelligent Planet"
-          </motion.p>
-
-          <motion.p
-            className="mt-5 text-xs sm:text-sm text-white/60 leading-relaxed max-w-2xl mx-auto"
-            variants={fadeIn}
-            custom={2}
-          >
-            KFUPM in partnership with Google Cloud brings together top innovators
-            from the world's leading universities to solve challenges aligned
-            with Saudi Vision 2030.
-          </motion.p>
-
-          <motion.div
-            className="mt-8 flex items-center justify-center gap-3 sm:gap-4 flex-wrap"
-            variants={fadeInUp}
-            custom={3}
-          >
-            <motion.button
-              className="group rounded-xl bg-blue-600 hover:bg-blue-500 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all inline-flex items-center gap-2 relative overflow-hidden"
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 0 50px rgba(59, 130, 246, 0.7)",
-              }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsRegisterModalOpen(true)}
-            >
-              <span className="relative z-10">Start Hacking</span>
-              <motion.div
-                className="relative z-10"
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                <ArrowRight className="h-4 w-4" />
-              </motion.div>
-            </motion.button>
-
-            <motion.button
-              className="rounded-xl border border-white/20 hover:border-white/30 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white/90 transition-all"
-              whileHover={{
-                scale: 1.05,
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                boxShadow: "0 0 25px rgba(255, 255, 255, 0.2)",
-              }}
-              whileTap={{ scale: 0.98 }}
-            >
-              View Schedule
-            </motion.button>
-          </motion.div>
-
-          <motion.div
-            className="mt-8 sm:mt-10 flex justify-center"
-            variants={fadeInUp}
-            custom={4}
-          >
-            <motion.div
-              className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 sm:px-4 py-2 text-[10px] sm:text-xs text-white/70"
-              whileHover={{
-                scale: 1.05,
-                backgroundColor: "rgba(255, 255, 255, 0.08)",
-                boxShadow: "0 0 25px rgba(59, 130, 246, 0.3)",
-              }}
-            >
-              <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4 text-blue-300" />
-              </motion.div>
-              <span className="whitespace-nowrap">
-                48 hours • $50k prizes • 500+ participants
-              </span>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* 2. HACKATHON - About the Hackathon */}
+      {/* ======================================================= */}
+      {/* ===== START SECTION 2: HACKATHON / ABOUT (id="hackathon") ===== */}
+      {/* ======================================================= */}
       <section
         id="hackathon"
         className="relative px-4 py-20 sm:py-28 overflow-hidden bg-gradient-to-b from-black via-[#0d2847] to-[#1a3a5c] scroll-mt-20"
@@ -659,6 +560,7 @@ export default function Home() {
             title="About the Hackathon"
             subtitle="48 hours of building, mentorship, and innovation aligned with Saudi Vision 2030"
           >
+            {/* TEXT INTRO */}
             <motion.div className="max-w-3xl" variants={fadeInUp}>
               <p className="text-base sm:text-lg text-white/70 leading-relaxed">
                 Intelligent Planet is a multi-day hackathon bringing innovators
@@ -669,6 +571,7 @@ export default function Home() {
               </p>
             </motion.div>
 
+            {/* PHOTO GRID PLACEHOLDERS */}
             <motion.div
               className="mt-10 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-6xl"
               variants={staggerContainer}
@@ -723,8 +626,13 @@ export default function Home() {
           </SectionFrame>
         </motion.div>
       </section>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 2: HACKATHON / ABOUT (id="hackathon") ===== */}
+      {/* ======================================================= */}
 
-      {/* 3. SPEAKERS - Keynote Speakers */}
+      {/* ======================================================= */}
+      {/* ===== START SECTION 3: SPEAKERS (id="speakers") ===== */}
+      {/* ======================================================= */}
       <motion.section
         id="speakers"
         className="px-4 py-20 sm:pb-24 bg-black scroll-mt-20"
@@ -740,6 +648,7 @@ export default function Home() {
             accentColor="blue"
           >
             <div className="mt-4">
+              {/* SPEAKERS MARQUEE */}
               <InfiniteScrollMarquee speed={70} direction="left">
                 {Array.from({ length: 6 }).map((_, idx) => (
                   <motion.div
@@ -755,9 +664,9 @@ export default function Home() {
                         y: -10,
                         scale: 1.03,
                         rotateY: 3,
-                        backgroundColor: "rgba(255, 255, 255, 0.07)",
-                        boxShadow: "0 25px 90px rgba(59, 130, 246, 0.35)",
-                        borderColor: "rgba(59, 130, 246, 0.4)",
+                        backgroundColor: "rgba(255,255,255,0.07)",
+                        boxShadow: "0 25px 90px rgba(59,130,246,0.35)",
+                        borderColor: "rgba(59,130,246,0.4)",
                       }}
                       transition={{ duration: 0.3 }}
                       style={{ transformStyle: "preserve-3d" }}
@@ -792,8 +701,13 @@ export default function Home() {
           </SectionFrame>
         </div>
       </motion.section>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 3: SPEAKERS (id="speakers") ===== */}
+      {/* ======================================================= */}
 
-      {/* 4. JOURNEY */}
+      {/* ======================================================= */}
+      {/* ===== START SECTION 4: JOURNEY (id="journey") ===== */}
+      {/* ======================================================= */}
       <motion.section
         id="journey"
         className="px-4 pb-16 sm:pb-20 scroll-mt-20"
@@ -808,58 +722,26 @@ export default function Home() {
             subtitle="Your path from registration to recognition"
             accentColor="cyan"
           >
+            {/* Timeline component renders the center line + cards */}
             <Timeline />
           </SectionFrame>
         </div>
       </motion.section>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 4: JOURNEY (id="journey") ===== */}
+      {/* ======================================================= */}
 
-      {/* 5. JUDGES */}
-      <motion.section
-        id="judges"
-        className="px-4 pb-16 sm:pb-20 bg-black scroll-mt-20"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
-      >
-        <div className="max-w-7xl mx-auto">
-          <SectionFrame
-            title="The Judges"
-            subtitle="Industry leaders and pioneers who will evaluate your innovative solutions."
-            accentColor="blue"
-          >
-            <div className="flex items-center justify-end mb-2">
-              <motion.div whileHover={{ x: 5 }}>
-                <Link
-                  href="#"
-                  className="text-xs sm:text-sm text-blue-300 hover:text-blue-200 inline-flex items-center gap-1 group"
-                >
-                  SEE ALL JUDGES{" "}
-                  <motion.div
-                    animate={{ x: [0, 3, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-                  </motion.div>
-                </Link>
-              </motion.div>
-            </div>
+      {/* ======================================================= */}
+      {/* ===== START SECTION 5: JUDGES (id="judges") ===== */}
+      {/* ======================================================= */}
+      <Judges/>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 5: JUDGES (id="judges") ===== */}
+      {/* ======================================================= */}
 
-            <InfiniteScrollMarquee speed={60} direction="left">
-              {judges.map((judge, idx) => (
-                <PersonCard
-                  key={`judge-${idx}`}
-                  name={judge.name}
-                  title={judge.title}
-                  delay={idx * 0.1}
-                />
-              ))}
-            </InfiniteScrollMarquee>
-          </SectionFrame>
-        </div>
-      </motion.section>
-
-      {/* 6. TEAMS */}
+      {/* ======================================================= */}
+      {/* ===== START SECTION 6: TEAMS (id="teams") ===== */}
+      {/* ======================================================= */}
       <motion.section
         id="teams"
         className="px-4 pb-16 sm:pb-20 scroll-mt-20"
@@ -874,6 +756,7 @@ export default function Home() {
             subtitle="Meet the innovators building the future"
             accentColor="purple"
           >
+            {/* Team cards grid */}
             <motion.div
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
               variants={staggerContainer}
@@ -887,9 +770,9 @@ export default function Home() {
                   whileHover={{
                     y: -8,
                     scale: 1.02,
-                    backgroundColor: "rgba(255, 255, 255, 0.06)",
-                    boxShadow: "0 20px 60px rgba(59, 130, 246, 0.3)",
-                    borderColor: "rgba(59, 130, 246, 0.3)",
+                    backgroundColor: "rgba(255,255,255,0.06)",
+                    boxShadow: "0 20px 60px rgba(59,130,246,0.3)",
+                    borderColor: "rgba(59,130,246,0.3)",
                   }}
                   transition={{ duration: 0.3 }}
                 >
@@ -909,49 +792,21 @@ export default function Home() {
           </SectionFrame>
         </div>
       </motion.section>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 6: TEAMS (id="teams") ===== */}
+      {/* ======================================================= */}
 
-      {/* 7. SPONSORS */}
-      <motion.section
-        id="sponsors"
-        className="px-4 py-16 sm:py-20 bg-black scroll-mt-20"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
-      >
-        <div className="max-w-6xl mx-auto">
-          <SectionFrame
-            title="Supported By Giants"
-            subtitle="Partners powering Intelligent Planet"
-            accentColor="cyan"
-          >
-            <motion.div
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5"
-              variants={staggerContainer}
-            >
-              {Array.from({ length: 8 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="h-16 sm:h-20 rounded-xl bg-white/[0.04] border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.6)] flex items-center justify-center text-white/25 text-[10px] sm:text-xs"
-                  variants={fadeInUp}
-                  whileHover={{
-                    scale: 1.05,
-                    y: -5,
-                    backgroundColor: "rgba(255, 255, 255, 0.08)",
-                    boxShadow: "0 10px 40px rgba(59, 130, 246, 0.3)",
-                    borderColor: "rgba(255, 255, 255, 0.2)",
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  SPONSOR {i + 1}
-                </motion.div>
-              ))}
-            </motion.div>
-          </SectionFrame>
-        </div>
-      </motion.section>
+      {/* ======================================================= */}
+      {/* ===== START SECTION 7: SPONSORS (id="sponsors") ===== */}
+      {/* ======================================================= */}
+      <Sponsors/>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 7: SPONSORS (id="sponsors") ===== */}
+      {/* ======================================================= */}
 
-      {/* Stats & More */}
+      {/* ======================================================= */}
+      {/* ===== START SECTION 8: STATS (no id) ===== */}
+      {/* ======================================================= */}
       <motion.section
         className="px-4 pb-20 sm:pb-24"
         initial="hidden"
@@ -986,8 +841,13 @@ export default function Home() {
           />
         </div>
       </motion.section>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 8: STATS ===== */}
+      {/* ======================================================= */}
 
-      {/* Footer */}
+      {/* ======================================================= */}
+      {/* ===== START SECTION 9: FOOTER ===== */}
+      {/* ======================================================= */}
       <motion.footer
         className="border-t border-white/10 bg-white/[0.02]"
         initial={{ opacity: 0, y: 50 }}
@@ -996,6 +856,7 @@ export default function Home() {
         transition={{ duration: 0.6 }}
       >
         <div className="max-w-6xl mx-auto px-4 py-8 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+          {/* Brand / logo */}
           <motion.div
             className="flex items-center gap-3"
             whileHover={{ scale: 1.05 }}
@@ -1009,10 +870,12 @@ export default function Home() {
             />
           </motion.div>
 
+          {/* Copyright */}
           <div className="text-[10px] sm:text-xs text-white/40">
             © 2025 Tech Summit. All rights reserved.
           </div>
 
+          {/* Footer links */}
           <div className="flex items-center gap-4 sm:gap-6 text-[10px] sm:text-xs text-white/50">
             {["Privacy Policy", "Code of Conduct", "Terms of Service"].map(
               (link) => (
@@ -1029,10 +892,19 @@ export default function Home() {
           </div>
         </div>
       </motion.footer>
+      {/* ======================================================= */}
+      {/* ===== END SECTION 9: FOOTER ===== */}
+      {/* ======================================================= */}
     </main>
   );
 }
 
+/**
+ * ============================================================
+ * COMPONENT 5: Stat
+ * - Used by the Stats section (Section 8)
+ * ============================================================
+ */
 function Stat({
   icon,
   value,
@@ -1052,9 +924,9 @@ function Stat({
       whileHover={{
         scale: 1.05,
         y: -8,
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
-        boxShadow: "0 20px 60px rgba(59, 130, 246, 0.3)",
-        borderColor: "rgba(59, 130, 246, 0.3)",
+        backgroundColor: "rgba(255,255,255,0.06)",
+        boxShadow: "0 20px 60px rgba(59,130,246,0.3)",
+        borderColor: "rgba(59,130,246,0.3)",
       }}
       transition={{ duration: 0.3 }}
     >
