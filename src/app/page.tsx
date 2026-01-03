@@ -10,6 +10,7 @@ import Link from "next/link";
  * =========================
  */
 import { Navbar } from "@/components/Navbar";
+import LoginRegister from "@/components/LoginRegister";
 import Hero from "@/components/sections/Hero";
 import Judges from "@/components/sections/Judges"
 import Sponsors from "@/components/sections/Sponsors";
