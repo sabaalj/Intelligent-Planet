@@ -1,22 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Code, Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
-  { id: "hero", label: "Home" },
-  { id: "hackathon", label: "Hackathon" },
-  { id: "journey", label: "Journey" },
-  { id: "judges", label: "Judges" },
+  { id: "hackathon", label: "About" },
   { id: "speakers", label: "Speakers" },
+  { id: "journey", label: "Event Journey" },
+  { id: "judges", label: "Judges" },
+  { id: "sponsors", label: "Sponsors" },
   { id: "teams", label: "Teams" },
 ];
 
 export function Navbar({
-  onRegisterClick,
+  isRegisterModalOpen,
+  setIsRegisterModalOpen,
 }: {
-  onRegisterClick?: () => void;
+  isRegisterModalOpen: boolean;
+  setIsRegisterModalOpen: (value: boolean) => void;
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -66,7 +68,7 @@ export function Navbar({
           <span className="hidden sm:inline">
             INTELLIGENT <span className="text-[#005287]">PLANET</span>
           </span>
-          <span className="sm:hidden text-[#005287]">IP'26</span>
+          <span className="sm:hidden text-[#005287]">IP&apos;26</span>
         </div>
 
         {/* Desktop Menu */}
@@ -86,10 +88,7 @@ export function Navbar({
           ))}
 
           <button
-            onClick={() => {
-              onRegisterClick?.();
-              setIsMenuOpen(false);
-            }}
+            onClick={() => setIsRegisterModalOpen(true)}
             className="ml-4 bg-[#005287] hover:bg-[#005287]/90 text-white px-6 py-2 rounded-full font-bold transition-all text-sm whitespace-nowrap uppercase tracking-wider"
           >
             Register Now
@@ -100,6 +99,7 @@ export function Navbar({
         <button
           className="lg:hidden p-2 text-white hover:text-[#005287] transition-colors"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
         >
           {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -131,7 +131,7 @@ export function Navbar({
 
               <button
                 onClick={() => {
-                  onRegisterClick?.();
+                  setIsRegisterModalOpen(true);
                   setIsMenuOpen(false);
                 }}
                 className="w-full bg-[#005287] hover:bg-[#005287]/90 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-xs transition-all mt-4"
