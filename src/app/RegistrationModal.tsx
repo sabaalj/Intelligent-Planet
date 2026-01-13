@@ -3,27 +3,83 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Mail, CheckCircle } from "lucide-react";
+import { X, User, Mail, CheckCircle, Building2, Globe2, Briefcase } from "lucide-react";
 
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { setCurrentUser, type RoleTitle, type UserProfile } from "@/lib/userSession";
 
 interface RegistrationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onRegistered?: (user: UserProfile) => void;
 }
 
-type FieldKey = "name" | "email";
+type FieldKey =
+  | "fullName"
+  | "email"
+  | "organization"
+  | "roleTitle"
+  | "roleOtherText"
+  | "nationality"
+  | "hearAbout";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
-export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
+const ROLE_OPTIONS: RoleTitle[] = [
+  "Student",
+  "Researcher",
+  "Faculty",
+  "Industry Professional",
+  "Government",
+  "Other",
+];
+
+const HEAR_ABOUT = ["University", "Social media", "Email", "Partner", "Friend"] as const;
+
+// (خفيفة) قائمة جنسيات أساسية + تقدرين توسعينها لاحقًا
+const NATIONALITIES = [
+  "Saudi Arabia",
+  "United Arab Emirates",
+  "Kuwait",
+  "Qatar",
+  "Bahrain",
+  "Oman",
+  "Egypt",
+  "Jordan",
+  "United States",
+  "United Kingdom",
+  "Canada",
+  "France",
+  "Germany",
+  "India",
+  "Pakistan",
+  "China",
+  "Japan",
+  "South Korea",
+];
+
+export function RegistrationModal({ isOpen, onClose, onRegistered }: RegistrationModalProps) {
   const [mounted, setMounted] = useState(false);
 
-  const [values, setValues] = useState({ name: "", email: "" });
+  const [values, setValues] = useState({
+    fullName: "",
+    email: "",
+    organization: "",
+    roleTitle: "" as RoleTitle | "",
+    roleOtherText: "",
+    nationality: "",
+    hearAbout: "" as (typeof HEAR_ABOUT)[number] | "",
+  });
+
   const [touched, setTouched] = useState<Record<FieldKey, boolean>>({
-    name: false,
+    fullName: false,
     email: false,
+    organization: false,
+    roleTitle: false,
+    roleOtherText: false,
+    nationality: false,
+    hearAbout: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,9 +90,21 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
 
   const errors = useMemo(() => {
     const e: Partial<Record<FieldKey, string>> = {};
-    if (!values.name.trim()) e.name = "This field is required.";
+
+    if (!values.fullName.trim()) e.fullName = "This field is required.";
     if (!values.email.trim()) e.email = "This field is required.";
     else if (!emailRegex.test(values.email.trim())) e.email = "Invalid email.";
+
+    if (!values.organization.trim()) e.organization = "This field is required.";
+
+    if (!values.roleTitle) e.roleTitle = "This field is required.";
+    if (values.roleTitle === "Other" && !values.roleOtherText.trim()) {
+      e.roleOtherText = "Please specify your role/title.";
+    }
+
+    if (!values.nationality) e.nationality = "This field is required.";
+
+    // hearAbout is optional -> no error
     return e;
   }, [values]);
 
@@ -60,8 +128,24 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
 
   useEffect(() => {
     if (!isOpen) {
-      setValues({ name: "", email: "" });
-      setTouched({ name: false, email: false });
+      setValues({
+        fullName: "",
+        email: "",
+        organization: "",
+        roleTitle: "" as any,
+        roleOtherText: "",
+        nationality: "",
+        hearAbout: "" as any,
+      });
+      setTouched({
+        fullName: false,
+        email: false,
+        organization: false,
+        roleTitle: false,
+        roleOtherText: false,
+        nationality: false,
+        hearAbout: false,
+      });
       setIsSubmitting(false);
       setIsSuccess(false);
       setSubmitError("");
@@ -73,36 +157,56 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setTouched({ name: true, email: true });
+    setTouched({
+      fullName: true,
+      email: true,
+      organization: true,
+      roleTitle: true,
+      roleOtherText: true,
+      nationality: true,
+      hearAbout: true,
+    });
+
     if (Object.keys(errors).length) return;
 
-    const name = values.name.trim();
-    const email = normalizeEmail(values.email);
+    const user: UserProfile = {
+      fullName: values.fullName.trim(),
+      email: normalizeEmail(values.email),
+      organization: values.organization.trim(),
+      roleTitle: values.roleTitle as RoleTitle,
+      roleOtherText: values.roleTitle === "Other" ? values.roleOtherText.trim() : "",
+      nationality: values.nationality,
+      hearAbout: values.hearAbout || "",
+    };
 
     setIsSubmitting(true);
     setSubmitError("");
 
     try {
-      const ref = doc(db, "registrations", email);
+      // email = doc id -> يمنع التكرار
+      const ref = doc(db, "registrations", user.email);
 
       const snap = await getDoc(ref);
       if (snap.exists()) {
-        setSubmitError("You're already registered.");
+        setSubmitError("This email is already registered.");
         return;
       }
 
       await setDoc(ref, {
-        name,
-        email,
+        ...user,
         createdAt: serverTimestamp(),
       });
+
+      // يعتبر “logged in” محليًا (Session) + نخلي الـ Navbar يقرأه
+      setCurrentUser(user);
+      onRegistered?.(user);
 
       setIsSuccess(true);
 
       setTimeout(() => {
         onClose();
       }, 900);
-    } catch (err) {
+    } catch {
       setSubmitError("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -130,7 +234,7 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-md bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden"
+            className="relative w-full max-w-xl bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -152,157 +256,217 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
                   <User className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">
-                    Register Now
-                  </h2>
-                  <p className="text-sm text-white/60 mt-0.5">
-                    Join Intelligent Planet 2026
-                  </p>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">Event Registration</h2>
+                  <p className="text-sm text-white/60 mt-0.5">Join Intelligent Planet 2026</p>
                 </div>
               </div>
             </div>
 
             <div className="relative px-8 pb-8">
               {isSuccess ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-8"
-                >
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-10">
                   <div className="w-20 h-20 bg-green-500/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
                     <CheckCircle className="w-10 h-10 text-green-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    Successfully Registered!
-                  </h3>
-                  <p className="text-white/60">We'll contact you soon via email</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Successfully Registered!</h3>
+                  <p className="text-white/60">Welcome aboard.</p>
                 </motion.div>
               ) : (
                 <form onSubmit={submit} className="space-y-5" noValidate>
+                  {/* Full Name */}
                   <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-white/90 mb-2"
-                    >
-                      Full Name
-                    </label>
+                    <label className="block text-sm font-medium text-white/90 mb-2">Full Name</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                         <User className="w-5 h-5 text-white/40" />
                       </div>
                       <input
-                        id="name"
-                        type="text"
-                        value={values.name}
-                        onChange={(e) =>
-                          setValues((p) => ({ ...p, name: e.target.value }))
-                        }
-                        onBlur={() => setTouched((p) => ({ ...p, name: true }))}
+                        value={values.fullName}
+                        onChange={(e) => setValues((p) => ({ ...p, fullName: e.target.value }))}
+                        onBlur={() => setTouched((p) => ({ ...p, fullName: true }))}
                         className={[
                           "w-full bg-white/5 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/40 focus:outline-none transition-all backdrop-blur-sm",
-                          hasError("name")
+                          hasError("fullName")
                             ? "border-2 border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20",
                         ].join(" ")}
                         placeholder="Enter your full name"
-                        aria-invalid={hasError("name")}
+                        aria-invalid={hasError("fullName")}
                       />
                     </div>
-
-                    <AnimatePresence>
-                      {hasError("name") && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="text-red-400 text-xs mt-2 ml-1"
-                        >
-                          {errors.name}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
+                    {hasError("fullName") && <p className="text-red-400 text-xs mt-2 ml-1">{errors.fullName}</p>}
                   </div>
 
+                  {/* Email */}
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-white/90 mb-2"
-                    >
-                      Email Address
-                    </label>
+                    <label className="block text-sm font-medium text-white/90 mb-2">Email Address</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                        <Mail
-                          className={`w-5 h-5 transition-colors ${
-                            hasError("email") || submitError
-                              ? "text-red-400"
-                              : "text-white/40"
-                          }`}
-                        />
+                        <Mail className="w-5 h-5 text-white/40" />
                       </div>
-
                       <input
-                        id="email"
                         type="email"
                         value={values.email}
-                        onChange={(e) => {
-                          setValues((p) => ({ ...p, email: e.target.value }));
-                          if (submitError) setSubmitError("");
-                        }}
+                        onChange={(e) => setValues((p) => ({ ...p, email: e.target.value }))}
                         onBlur={() => setTouched((p) => ({ ...p, email: true }))}
                         className={[
                           "w-full bg-white/5 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/40 focus:outline-none transition-all backdrop-blur-sm",
-                          hasError("email") || submitError
+                          hasError("email")
                             ? "border-2 border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20",
                         ].join(" ")}
-                        placeholder="example@email.com"
-                        aria-invalid={hasError("email") || Boolean(submitError)}
+                        placeholder="your.email@example.com"
+                        aria-invalid={hasError("email")}
                       />
                     </div>
-
-                    <AnimatePresence>
-                      {(hasError("email") || submitError) && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="text-red-400 text-xs mt-2 ml-1"
-                        >
-                          {submitError || errors.email}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
+                    {hasError("email") && <p className="text-red-400 text-xs mt-2 ml-1">{errors.email}</p>}
                   </div>
 
-                  <button
+                  {/* Organization */}
+                  <div>
+                    <label className="block text-sm font-medium text-white/90 mb-2">Organization</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <Building2 className="w-5 h-5 text-white/40" />
+                      </div>
+                      <input
+                        value={values.organization}
+                        onChange={(e) => setValues((p) => ({ ...p, organization: e.target.value }))}
+                        onBlur={() => setTouched((p) => ({ ...p, organization: true }))}
+                        className={[
+                          "w-full bg-white/5 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/40 focus:outline-none transition-all backdrop-blur-sm",
+                          hasError("organization")
+                            ? "border-2 border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20",
+                        ].join(" ")}
+                        placeholder="Your organization or institution"
+                        aria-invalid={hasError("organization")}
+                      />
+                    </div>
+                    {hasError("organization") && <p className="text-red-400 text-xs mt-2 ml-1">{errors.organization}</p>}
+                  </div>
+
+                  {/* Role / Title */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-white/90 mb-2">Role / Title</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                          <Briefcase className="w-5 h-5 text-white/40" />
+                        </div>
+                        <select
+                          value={values.roleTitle}
+                          onChange={(e) =>
+                            setValues((p) => ({ ...p, roleTitle: e.target.value as RoleTitle }))
+                          }
+                          onBlur={() => setTouched((p) => ({ ...p, roleTitle: true }))}
+                          className={[
+                            "w-full bg-white/5 rounded-xl pl-12 pr-4 py-3.5 text-white focus:outline-none transition-all backdrop-blur-sm",
+                            hasError("roleTitle")
+                              ? "border-2 border-red-500 focus:ring-2 focus:ring-red-500/20"
+                              : "border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20",
+                          ].join(" ")}
+                          aria-invalid={hasError("roleTitle")}
+                        >
+                          <option value="" className="bg-black">Select a role</option>
+                          {ROLE_OPTIONS.map((r) => (
+                            <option key={r} value={r} className="bg-black">
+                              {r}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {hasError("roleTitle") && <p className="text-red-400 text-xs mt-2 ml-1">{errors.roleTitle}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-white/90 mb-2">Nationality</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                          <Globe2 className="w-5 h-5 text-white/40" />
+                        </div>
+                        <select
+                          value={values.nationality}
+                          onChange={(e) => setValues((p) => ({ ...p, nationality: e.target.value }))}
+                          onBlur={() => setTouched((p) => ({ ...p, nationality: true }))}
+                          className={[
+                            "w-full bg-white/5 rounded-xl pl-12 pr-4 py-3.5 text-white focus:outline-none transition-all backdrop-blur-sm",
+                            hasError("nationality")
+                              ? "border-2 border-red-500 focus:ring-2 focus:ring-red-500/20"
+                              : "border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20",
+                          ].join(" ")}
+                          aria-invalid={hasError("nationality")}
+                        >
+                          <option value="" className="bg-black">Select a country</option>
+                          {NATIONALITIES.map((c) => (
+                            <option key={c} value={c} className="bg-black">
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {hasError("nationality") && <p className="text-red-400 text-xs mt-2 ml-1">{errors.nationality}</p>}
+                    </div>
+                  </div>
+
+                  {/* If Other */}
+                  {values.roleTitle === "Other" && (
+                    <div>
+                      <label className="block text-sm font-medium text-white/90 mb-2">Other (please specify)</label>
+                      <input
+                        value={values.roleOtherText}
+                        onChange={(e) => setValues((p) => ({ ...p, roleOtherText: e.target.value }))}
+                        onBlur={() => setTouched((p) => ({ ...p, roleOtherText: true }))}
+                        className={[
+                          "w-full bg-white/5 rounded-xl px-4 py-3.5 text-white placeholder-white/40 focus:outline-none transition-all backdrop-blur-sm",
+                          hasError("roleOtherText")
+                            ? "border-2 border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20",
+                        ].join(" ")}
+                        placeholder="Type your role/title"
+                        aria-invalid={hasError("roleOtherText")}
+                      />
+                      {hasError("roleOtherText") && <p className="text-red-400 text-xs mt-2 ml-1">{errors.roleOtherText}</p>}
+                    </div>
+                  )}
+
+                  {/* Optional hear about */}
+                  <div>
+                    <label className="block text-sm font-medium text-white/90 mb-2">
+                      How did you hear about the event? <span className="text-white/50">(Optional)</span>
+                    </label>
+                    <select
+                      value={values.hearAbout}
+                      onChange={(e) => setValues((p) => ({ ...p, hearAbout: e.target.value as any }))}
+                      className="w-full bg-white/5 rounded-xl px-4 py-3.5 text-white focus:outline-none border border-white/10 focus:border-[#005287] focus:ring-2 focus:ring-[#005287]/20 transition-all backdrop-blur-sm"
+                    >
+                      <option value="" className="bg-black">Select one</option>
+                      {HEAR_ABOUT.map((x) => (
+                        <option key={x} value={x} className="bg-black">
+                          {x}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {submitError && (
+                    <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                      {submitError}
+                    </div>
+                  )}
+
+                  <motion.button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#005287] hover:bg-[#004170] disabled:bg-[#005287]/50 text-white font-bold py-3.5 rounded-xl transition-all uppercase tracking-wider relative overflow-hidden group mt-6 border border-white/10"
+                    className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition-all disabled:opacity-60"
+                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                   >
-                    {isSubmitting ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Submitting...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <span className="relative z-10">Register</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                      </>
-                    )}
-                  </button>
+                    {isSubmitting ? "Processing..." : "Complete Registration"}
+                  </motion.button>
                 </form>
               )}
             </div>
-
-            {!isSuccess && (
-              <div className="relative px-8 pb-6">
-                <p className="text-xs text-white/40 text-center">
-                  By registering, you agree to our terms and conditions
-                </p>
-              </div>
-            )}
           </motion.div>
         </div>
       )}
