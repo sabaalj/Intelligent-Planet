@@ -159,5 +159,21 @@
   will-change: transform;
 }
 
+/* Judges horizontal scrollbar */
+.judge-scroll {
+  scrollbar-color: #005287 #000000;
+  scrollbar-width: thin;
+}
 
+.judge-scroll::-webkit-scrollbar {
+  height: 8px;
+}
 
+.judge-scroll::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+.judge-scroll::-webkit-scrollbar-thumb {
+  background: #005287;
+  border-radius: 999px;
+}
