@@ -38,6 +38,7 @@
 }
 
 .loginRegisterWrapper * {
+  margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
@@ -57,7 +58,7 @@
 }
 
 .container h1 {
-  font-size: 32px;
+  font-size: 36px;
   margin: -10px 0;
 }
 
@@ -76,7 +77,6 @@
   width: 50%;
   height: 100%;
   background: var(--color-white);
-  color: var(--color-black);
   display: flex;
   align-items: center;
   padding: 40px;
