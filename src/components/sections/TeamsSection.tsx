@@ -78,7 +78,7 @@ function VerticalGridAutoScroller({
 
   if (prefersReducedMotion) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-8">
         {items.map((node, idx) => (
           <div key={idx}>{node}</div>
         ))}
@@ -86,7 +86,7 @@ function VerticalGridAutoScroller({
     );
   }
 
-  const ROW_H = 220; // a bit taller to comfortably fit chips
+  const ROW_H = 220;
   const GAP_Y = 32;
   const VIEWPORT_H = `calc(${3 * ROW_H}px + ${2 * GAP_Y}px)`;
 
@@ -106,14 +106,14 @@ function VerticalGridAutoScroller({
         <motion.div style={{ y }}>
           <div
             ref={gridRef}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-8"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-8"
           >
             {items.map((node, idx) => (
               <div key={`grid1-${idx}`}>{node}</div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-8 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-8 mt-8">
             {items.map((node, idx) => (
               <div key={`grid2-${idx}`}>{node}</div>
             ))}
@@ -406,11 +406,11 @@ export default function TeamsSection() {
         </div>
 
         {/* Member chips: give each chip more room so names like "Nasser" fit */}
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-3">
           {t.members.map((m, i) => (
             <div
               key={i}
-              className="text-sm text-white/75 bg-white/[0.03] border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-2"
+              className="text-sm text-white/75 bg-white/[0.03] border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-2 justify-center"
               title={m.name}
             >
               <span className="text-base leading-none">{m.flag}</span>

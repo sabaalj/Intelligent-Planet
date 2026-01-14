@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
 import { Mic } from "lucide-react";
 import { SectionFrame } from "@/components/SectionFrame";
-import { staggerContainer } from "./animationVariants";
 
 type Speaker = {
   name: string;
@@ -13,19 +12,21 @@ type Speaker = {
   quote: string;
 };
 
-function VerticalGridAutoScroller({
-  items,
-  speedPxPerSecond = 60,
+function InfiniteScrollMarquee({
+  children,
+  speedPxPerSecond = 105,
+  direction = "left",
 }: {
-  items: React.ReactNode[];
+  children: React.ReactNode[];
   speedPxPerSecond?: number;
+  direction?: "left" | "right";
 }) {
   const [isPaused, setIsPaused] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [gridHeight, setGridHeight] = useState<number>(0);
+  const [singleSetWidth, setSingleSetWidth] = useState(0);
 
-  const y = useMotionValue(0);
-  const gridRef = useRef<HTMLDivElement | null>(null);
+  const x = useMotionValue(0);
+  const singleSetRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -36,103 +37,70 @@ function VerticalGridAutoScroller({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // Robust measurement (fixes "auto scroll stopped" due to height measuring as 0)
   useEffect(() => {
-    if (!gridRef.current) return;
+    const el = singleSetRef.current;
+    if (!el) return;
 
-    let raf1 = 0;
-    let raf2 = 0;
+    const measure = () => setSingleSetWidth(el.scrollWidth);
+    measure();
 
-    const measure = () => {
-      const el = gridRef.current;
-      if (!el) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
 
-      // Use scrollHeight for full content height; fallback to bbox height
-      const h = el.scrollHeight || Math.round(el.getBoundingClientRect().height);
-      if (h && h !== gridHeight) setGridHeight(h);
-    };
+    return () => ro.disconnect();
+  }, []);
 
-    // Measure after layout is painted (double rAF is a common reliable trick)
-    raf1 = window.requestAnimationFrame(() => {
-      raf2 = window.requestAnimationFrame(() => measure());
-    });
-
-    const onResize = () => measure();
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.cancelAnimationFrame(raf1);
-      window.cancelAnimationFrame(raf2);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length]);
-
-  // Smooth manual animation so pause/unpause resumes (doesn't restart)
   useAnimationFrame((_, delta) => {
-    if (prefersReducedMotion || isPaused || gridHeight <= 0) return;
+    if (prefersReducedMotion || isPaused || !singleSetWidth) return;
 
-    const moveBy = (speedPxPerSecond * delta) / 1000; // px
-    let next = y.get() - moveBy; // move up
+    const dir = direction === "left" ? -1 : 1;
+    const moveBy = dir * (speedPxPerSecond * (delta / 1000));
+    let next = x.get() + moveBy;
 
-    // Wrap seamlessly
-    if (next <= -gridHeight) next += gridHeight;
+    if (direction === "left") {
+      if (next <= -singleSetWidth) next += singleSetWidth;
+      if (next > 0) next -= singleSetWidth;
+    } else {
+      if (next >= singleSetWidth) next -= singleSetWidth;
+      if (next < 0) next += singleSetWidth;
+    }
 
-    y.set(next);
+    x.set(next);
   });
+
+  const tripled = [...children, ...children, ...children];
 
   if (prefersReducedMotion) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6">
-        {items.map((node, idx) => (
-          <div key={idx}>{node}</div>
-        ))}
+      <div className="overflow-hidden">
+        <div className="flex gap-6">{children}</div>
       </div>
     );
   }
 
-  /**
-   * Viewport sizing:
-   * 2 full rows + half top + half bottom = 3 row-heights visible
-   * plus 2 gaps between those 3 visible rows
-   */
-  const ROW_H = 180; // must match card min-h below
-  const GAP_Y = 24; // gap-y-6
-  const VIEWPORT_H = `calc(${3 * ROW_H}px + ${2 * GAP_Y}px)`; // 3 rows + 2 gaps
-
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-hidden py-2"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
       onBlur={() => setIsPaused(false)}
-      aria-label="Speakers auto scroller"
     >
-      <div className="relative" style={{ height: VIEWPORT_H }}>
-        {/* Soft edge fades to sell the "half row" look */}
-        <div className="pointer-events-none absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-black to-transparent z-10" />
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black to-transparent z-10" />
+      <motion.div className="flex gap-6 w-max" style={{ x }}>
+        <div ref={singleSetRef} className="flex gap-6 w-max">
+          {children.map((child, idx) => (
+            <div key={`set1-${idx}`} className="flex-shrink-0">
+              {child}
+            </div>
+          ))}
+        </div>
 
-        <motion.div style={{ y }}>
-          {/* First grid (measured) */}
-          <div
-            ref={gridRef}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6"
-          >
-            {items.map((node, idx) => (
-              <div key={`grid1-${idx}`}>{node}</div>
-            ))}
+        {tripled.slice(children.length).map((child, idx) => (
+          <div key={`dup-${idx}`} className="flex-shrink-0">
+            {child}
           </div>
-
-          {/* Duplicate grid (seamless loop) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6 mt-6">
-            {items.map((node, idx) => (
-              <div key={`grid2-${idx}`}>{node}</div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+        ))}
+      </motion.div>
     </div>
   );
 }
@@ -183,57 +151,46 @@ export default function SpeakersSection() {
     []
   );
 
-  const cards = useMemo(() => {
-    return speakers.map((s, idx) => (
-      <motion.div
-        key={`speaker-${idx}`}
-        className="rounded-2xl bg-white/[0.04] border border-white/10 p-5 sm:p-6 shadow-[0_0_60px_rgba(0,0,0,0.6)] min-h-[180px] transition-colors duration-300 hover:bg-white/[0.06] hover:border-blue-500/40"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: (idx % 12) * 0.03, duration: 0.5 }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-blue-600/20 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
-            <Mic className="h-3 w-3 sm:h-4 sm:w-4 text-blue-300" />
-          </div>
-
-          <div className="text-left">
-            <p className="font-semibold text-sm sm:text-base">{s.name}</p>
-            <p className="text-[10px] sm:text-xs text-white/45 uppercase">
-              {s.role} @ {s.org}
-            </p>
-          </div>
-        </div>
-
-        <p className="mt-4 text-xs sm:text-sm text-white/55 leading-relaxed text-left">
-          “{s.quote}”
-        </p>
-      </motion.div>
-    ));
-  }, [speakers]);
-
   return (
-    <motion.section
-      id="speakers"
-      className="px-4 py-20 sm:pb-24 bg-black scroll-mt-20"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
-      variants={staggerContainer}
-    >
-      <div className="max-w-7xl mx-auto">
+    <section id="speakers" className="px-4 py-20 sm:pb-24 bg-black relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#005287]/10 rounded-full blur-[128px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         <SectionFrame
           title="Keynote Speakers"
           subtitle="Hear from the visionaries shaping the future of technology."
           accentColor="blue"
         >
           <div className="mt-8">
-            {/* 2 full rows + half row top + half row bottom */}
-            <VerticalGridAutoScroller items={cards} speedPxPerSecond={60} />
+            <InfiniteScrollMarquee speedPxPerSecond={105} direction="left">
+              {speakers.map((speaker, i) => (
+                <motion.div
+                  key={`${speaker.name}-${i}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="group relative w-72 sm:w-80 flex-shrink-0"
+                >
+                  <div className="aspect-[4/5] bg-neutral-900 rounded-lg overflow-hidden relative mb-4 border border-white/5">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,82,135,0.4)_0%,transparent_30%),radial-gradient(circle_at_bottom_right,rgba(0,82,135,0.4)_0%,transparent_30%),linear-gradient(to_top,rgba(0,82,135,0.2)_0%,transparent_40%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+                    <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-neutral-700 group-hover:scale-110 transition-transform duration-500">
+                      <Mic className="w-16 h-16 opacity-10" />
+                    </div>
+                  </div>
+
+                  <h3 className="text-xl font-bold uppercase tracking-tight">
+                    {speaker.name}
+                  </h3>
+                  <p className="text-sm text-[#005287] font-bold uppercase tracking-wider">
+                    {speaker.role}, {speaker.org}
+                  </p>
+                </motion.div>
+              ))}
+            </InfiniteScrollMarquee>
           </div>
         </SectionFrame>
       </div>
-    </motion.section>
+    </section>
   );
 }
