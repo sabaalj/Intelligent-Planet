@@ -13,7 +13,7 @@ export default function AboutHackathonSection() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03)_0%,transparent_50%)]" />
 
       <motion.div
-        className="relative max-w-7xl mx-auto"
+        className="relative w-full max-w-[2200px] mx-auto px-2 sm:px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}

@@ -13,7 +13,6 @@ import AboutHackathonSection from "@/components/sections/AboutHackathonSection";
 import SpeakersSection from "@/components/sections/SpeakersSection";
 import JourneySection from "@/components/sections/JourneySection";
 import TeamsSection from "@/components/sections/TeamsSection";
-import StatsSection from "@/components/sections/StatsSection";
 import FooterSection from "@/components/sections/FooterSection";
 
 export default function Home() {
@@ -30,7 +29,6 @@ export default function Home() {
 
       {/* SECTION 1 */}
       <Hero />
-      <StatsSection />
 
       {/* SECTION 2 */}
       <AboutHackathonSection />

@@ -62,7 +62,7 @@ function Timeline() {
         {prefersReducedMotion && <div className="absolute inset-0 bg-white" />}
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-4">
+      <div className="w-full max-w-[2200px] mx-auto px-2 sm:px-6">
         {timelineItems.map((item, index) => (
           <motion.div
             key={index}
@@ -102,13 +102,13 @@ export default function JourneySection() {
   return (
     <motion.section
       id="journey"
-      className="px-4 pb-16 sm:pb-20 scroll-mt-20"
+      className="pb-16 sm:pb-20 scroll-mt-20" // removed px-4
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       variants={staggerContainer}
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full max-w-[2200px] mx-auto px-2 sm:px-6">
         <SectionFrame
           title="Event Journey"
           subtitle="Your path from registration to recognition"

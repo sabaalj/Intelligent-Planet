@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { ChevronRight, X, Clock, User } from "lucide-react";
+import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -74,7 +74,7 @@ const SCHEDULE_DATA: ScheduleData = {
         { time: "10:30 AM", session: "Keynote 1: AI For Humanity & Planet", speakers: "Dr. Sarah Johnson" },
         { time: "11:00 AM", session: "Panel 1: Sustainable AI for the Planet", speakers: "Prof. Michael Chen, Dr. Lisa Wang" },
         { time: "12:00 PM", session: "Lunch Break", speakers: "-" },
-        { time: "01:30 PM", session: "Google’s Session: Design Thinking Workshop", speakers: "Google Cloud Team" },
+        { time: "01:30 PM", session: "Google's Session: Design Thinking Workshop", speakers: "Google Cloud Team" },
         { time: "02:30 PM", session: "Keynote 2: Safe AI on a Global Scale", speakers: "Dr. James Wilson" },
         { time: "03:00 PM", session: "Panel 2: Education for Digital Industry", speakers: "Dr. Elena Rossi, Dr. Kevin Smith" },
         { time: "04:00 PM", session: "Keynote 3: Intelligent systems for World connection", speakers: "Dr. Maria Garcia" },
@@ -94,6 +94,62 @@ const SCHEDULE_DATA: ScheduleData = {
   },
 };
 
+// Inline variant so stats can animate without importing another file
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+function Stat({
+  icon,
+  value,
+  label,
+  custom = 0,
+}: {
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+  custom?: number;
+}) {
+  return (
+    <motion.div
+      className="rounded-2xl bg-white/[0.03] border border-white/10 py-6 sm:py-8"
+      variants={fadeInUp}
+      custom={custom}
+      whileHover={{
+        scale: 1.05,
+        y: -8,
+        backgroundColor: "rgba(255,255,255,0.06)",
+        boxShadow: "0 20px 60px rgba(59,130,246,0.3)",
+        borderColor: "rgba(59,130,246,0.3)",
+      }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        className="mx-auto w-fit text-blue-300/80"
+        whileHover={{ rotate: 360, scale: 1.2 }}
+        transition={{ duration: 0.5 }}
+      >
+        {icon}
+      </motion.div>
+
+      <motion.div
+        className="mt-3 text-xl sm:text-2xl font-bold"
+        initial={{ scale: 0.5, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.3 + custom * 0.1, type: "spring" }}
+      >
+        {value}
+      </motion.div>
+
+      <div className="mt-1 text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-white/45">
+        {label}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Hero({ fadeIn, staggerContainer }: HeroProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeBuilding, setActiveBuilding] = useState<BuildingKey>("Building 57");
@@ -106,8 +162,9 @@ export default function Hero({ fadeIn, staggerContainer }: HeroProps) {
     <>
       <section
         id="hero"
-        className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden"
+        className="relative h-screen flex flex-col pt-16 overflow-hidden pb-0"
       >
+
         <div className="absolute inset-0 z-0">
           <Image
             src={bgSrc}
@@ -145,16 +202,16 @@ export default function Hero({ fadeIn, staggerContainer }: HeroProps) {
           />
         </motion.div>
 
-        <div className="container mx-auto px-6 relative z-10 text-center pt-32 pb-12">
+        <div className="container mx-auto px-6 relative z-10 text-center flex flex-col flex-1 justify-center pb-0">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
-            className="max-w-4xl mx-auto"
+            className="max-w-6xl mx-auto w-full"
           >
-            <motion.div variants={fadeIn} className="mb-6 flex justify-center">
+            <motion.div variants={fadeIn} className="mb-4 flex justify-center">
               <span
-                className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-xs font-medium uppercase tracking-widest"
+                className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sm font-medium uppercase tracking-widest"
                 style={{ color: "#ffffff" }}
               >
                 February 2 – 4, 2026 • KFUPM, Dhahran, Saudi Arabia
@@ -163,43 +220,63 @@ export default function Hero({ fadeIn, staggerContainer }: HeroProps) {
 
             <motion.h1
               variants={fadeIn}
-              className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold tracking-tighter mb-8 leading-none"
+              className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tighter mb-4 leading-none whitespace-nowrap"
             >
-              INTELLIGENT <br />
               <span
                 className="text-transparent bg-clip-text uppercase"
                 style={{
-                  backgroundImage: `linear-gradient(to right, #ffffff, #ffffff, ${PRIMARY})`,
+                  backgroundImage: `linear-gradient(to bottom, #ffffff, #ffffff, ${PRIMARY})`,
                 }}
               >
-                Planet
+                INTELLIGENT
+              </span>{" "}
+              <span
+                className="text-transparent bg-clip-text uppercase"
+                style={{
+                  backgroundImage: `linear-gradient(to bottom, #ffffff, #ffffff, ${PRIMARY})`,
+                }}
+              >
+                PLANET
               </span>
             </motion.h1>
 
+            <motion.div variants={fadeIn} className="mb-6 flex justify-center">
+              <Image
+                src="/assets/GCloudxKFUPM.png"
+                alt="Google Cloud x KFUPM"
+                width={700}
+                height={175}
+                className="object-contain"
+              />
+            </motion.div>
+
             <motion.p
               variants={fadeIn}
-              className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto mb-12 font-light italic"
+              className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-8 font-light italic"
             >
               "AI Solutions for an Intelligent Planet"
             </motion.p>
 
             <motion.p
               variants={fadeIn}
-              className="text-lg text-white/70 max-w-3xl mx-auto mb-12 font-light leading-relaxed"
+              className="text-base text-white/70 max-w-3xl mx-auto mb-8 font-light leading-relaxed"
             >
               KFUPM in partnership with Google Cloud brings together top innovators
-              from the world’s leading universities to solve challenges aligned with
+              from the world's leading universities to solve challenges aligned with
               Saudi Vision 2030.
             </motion.p>
 
-            <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <motion.div
+              variants={fadeIn}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
               <button
                 className="w-full sm:w-auto px-8 py-4 text-white rounded font-medium transition-all flex items-center justify-center gap-2 group box-glow"
                 style={{ backgroundColor: PRIMARY }}
                 onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.95)")}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
               >
-                Start Hacking
+                Join Us
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -210,6 +287,40 @@ export default function Hero({ fadeIn, staggerContainer }: HeroProps) {
                 View Schedule
               </button>
             </motion.div>
+          </motion.div>
+
+          {/* ✅ STATS INTEGRATED HERE */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="mt-10 mb-0 w-full max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center"
+          >
+            <Stat
+              icon={<Users className="h-4 w-4 sm:h-5 sm:w-5" />}
+              value="500+"
+              label="Participants"
+              custom={0}
+            />
+            <Stat
+              icon={<Trophy className="h-4 w-4 sm:h-5 sm:w-5" />}
+              value="$50k"
+              label="Prizes"
+              custom={1}
+            />
+            <Stat
+              icon={<Mic className="h-4 w-4 sm:h-5 sm:w-5" />}
+              value="24"
+              label="Speakers"
+              custom={2}
+            />
+            <Stat
+              icon={<Globe className="h-4 w-4 sm:h-5 sm:w-5" />}
+              value="30+"
+              label="Countries"
+              custom={3}
+            />
           </motion.div>
         </div>
       </section>
