@@ -242,7 +242,7 @@ export default function Hero({ fadeIn, staggerContainer }: HeroProps) {
 
             <motion.div variants={fadeIn} className="mb-6 flex justify-center">
               <Image
-                src="/assets/GCloudxKFUPM.png"
+                src="/assets/GCloudKFUPM.png"
                 alt="Google Cloud x KFUPM"
                 width={700}
                 height={175}

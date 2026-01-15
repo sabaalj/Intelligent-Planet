@@ -8,8 +8,6 @@ import { SectionFrame } from "@/components/SectionFrame";
 type Speaker = {
   name: string;
   role: string;
-  org: string;
-  quote: string;
 };
 
 function InfiniteScrollMarquee({
@@ -108,45 +106,16 @@ function InfiniteScrollMarquee({
 export default function SpeakersSection() {
   const speakers: Speaker[] = useMemo(
     () => [
-      { name: "Aisha Al-Harbi", role: "AI Product Lead", org: "Nexa Labs", quote: "Building AI that empowers people, not replaces them." },
-      { name: "Omar Al-Farsi", role: "Head of Innovation", org: "FutureGrid", quote: "Great systems start with great questions." },
-      { name: "Lina Al-Saud", role: "ML Engineer", org: "VisionWorks", quote: "Model quality is a story of data, not just code." },
-      { name: "Yousef Al-Nasser", role: "Platform Architect", org: "CloudRidge", quote: "Scalability is a feature—design it early." },
-      { name: "Maha Al-Qahtani", role: "UX Research Lead", org: "HumanFirst", quote: "The best interfaces feel invisible." },
-      { name: "Salman Al-Shammari", role: "Data Scientist", org: "InsightForge", quote: "Turn signals into decisions—responsibly." },
-      { name: "Reem Al-Mutairi", role: "Security Engineer", org: "SafeNet", quote: "Security isn’t a layer; it’s a mindset." },
-      { name: "Faisal Al-Zahrani", role: "DevOps Lead", org: "PipelinePro", quote: "Automation buys time for creativity." },
-      { name: "Noura Al-Dossary", role: "AI Policy Advisor", org: "TechGov", quote: "Trust is the most important metric." },
-
-      { name: "Hassan Al-Khaled", role: "Robotics Director", org: "MechaCore", quote: "Hardware moves fast when software is ready." },
-      { name: "Sara Al-Yami", role: "Product Manager", org: "Launchpad", quote: "Clarity beats complexity—every time." },
-      { name: "Khalid Al-Otaibi", role: "Research Scientist", org: "DeepMindset", quote: "Better benchmarks build better models." },
-      { name: "Mariam Al-Rashid", role: "AI Evangelist", org: "GenAI Studio", quote: "Creativity and computation belong together." },
-      { name: "Abdullah Al-Johani", role: "Backend Engineer", org: "CoreStack", quote: "Reliable APIs are invisible heroes." },
-      { name: "Noor Al-Hazmi", role: "Design Systems Lead", org: "PixelGrid", quote: "Consistency is what makes speed possible." },
-      { name: "Talal Al-Shehri", role: "Cloud Engineer", org: "SkyCompute", quote: "Resilience is the real performance." },
-      { name: "Huda Al-Mansour", role: "AI Researcher", org: "OpenCompute", quote: "Interpretability is a product requirement." },
-      { name: "Ziyad Al-Anazi", role: "Mobile Lead", org: "AppFoundry", quote: "Delight is a performance feature." },
-
-      { name: "Dana Al-Saleh", role: "Data Engineer", org: "StreamWorks", quote: "Pipelines should be boring—and perfect." },
-      { name: "Rayan Al-Ghamdi", role: "SRE Manager", org: "Uptime Labs", quote: "Measure what matters, then automate it." },
-      { name: "Hind Al-Omar", role: "AI Ethics Lead", org: "ResponsibleAI", quote: "Fairness is engineering, not a slogan." },
-      { name: "Majed Al-Harthy", role: "Frontend Lead", org: "UICraft", quote: "Animations should guide, not distract." },
-      { name: "Farah Al-Subaie", role: "Growth PM", org: "MarketPulse", quote: "User value is the only sustainable growth." },
-      { name: "Nawaf Al-Salem", role: "Systems Engineer", org: "EdgeCore", quote: "Latency is a user experience." },
-      { name: "Rima Al-Bishi", role: "Partnerships Director", org: "CollabNet", quote: "Ecosystems win the long game." },
-      { name: "Sultan Al-Ruwaili", role: "AI Solutions Architect", org: "ModelWorks", quote: "Deploying is where models become real." },
-      { name: "Manar Al-Khathlan", role: "Designer", org: "Studio Nine", quote: "Design is how strategy becomes tangible." },
-
-      { name: "Yara Al-Fahad", role: "PM, Developer Tools", org: "Toolsmith", quote: "Great tools feel like superpowers." },
-      { name: "Adel Al-Amri", role: "CTO", org: "BrightTech", quote: "Ship fast—learn faster." },
-      { name: "Latifa Al-Hassan", role: "AI Educator", org: "LearnAI", quote: "Teaching turns curiosity into capability." },
-      { name: "Bilal Al-Mutlaq", role: "Security Researcher", org: "VulnLab", quote: "Attackers innovate—so must defenders." },
-      { name: "Amal Al-Najjar", role: "Innovation Strategist", org: "2030 Studio", quote: "Vision becomes impact through execution." },
-      { name: "Yahya Al-Saadi", role: "Staff Engineer", org: "ScaleOps", quote: "Simplicity is the hardest achievement." },
-      { name: "Lujain Al-Khateeb", role: "AI Designer", org: "CreativeCompute", quote: "Human-centered AI is better AI." },
-      { name: "Nasser Al-Dughaim", role: "Data Product Lead", org: "SignalWorks", quote: "Products should speak in outcomes." },
-      { name: "Raghad Al-Muqrin", role: "Research Lead", org: "FutureLabs", quote: "Innovation needs patience and rigor." },
+      { name: "Prof. Jacques Klein", role: "CTO, TechCorp" },
+      { name: "Prof. Ruslan Mitkov", role: "Design Lead, CreativeX" },
+      { name: "Dr. Fawaz Alazmi", role: "Founder, StartupOne" },
+      { name: "Prof. Fadi J. Kurdahi", role: "VP Engineering, BigData" },
+      { name: "Dr. Naveed Sherwani", role: "AI Lead, FutureTech" },
+      { name: "Mr. Rami Busbait", role: "Product Director, InnovateCo" },
+      { name: "Assoc. Prof. Mohammed Alshekly", role: "Head of Innovation, Nexa" },
+      { name: "Dr. Mohammed Alharbi", role: "Head of Innovation, Nexa" },
+      { name: "Prof. Abdullah Abdulmotaleb", role: "Head of Innovation, Nexa" },
+      { name: "Dr. Yervant Zorian", role: "Head of Innovation, Nexa" },
     ],
     []
   );
@@ -183,7 +152,7 @@ export default function SpeakersSection() {
                     {speaker.name}
                   </h3>
                   <p className="text-sm text-[#005287] font-bold uppercase tracking-wider">
-                    {speaker.role}, {speaker.org}
+                    {speaker.role}
                   </p>
                 </motion.div>
               ))}

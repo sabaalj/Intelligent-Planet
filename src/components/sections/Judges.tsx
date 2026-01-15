@@ -106,13 +106,16 @@ function InfiniteScrollMarquee({
 export default function Judges() {
   const judges: Judge[] = useMemo(
     () => [
-      { name: "Sarah Connor", role: "CTO, TechCorp" },
-      { name: "John Smith", role: "Design Lead, CreativeX" },
-      { name: "Emily Chen", role: "Founder, StartupOne" },
-      { name: "Michael Ross", role: "VP Engineering, BigData" },
-      { name: "Alex Johnson", role: "AI Lead, FutureTech" },
-      { name: "Maya Patel", role: "Product Director, InnovateCo" },
-      { name: "Omar Al-Farsi", role: "Head of Innovation, Nexa" },
+      { name: "Prof. Jacques Klein", role: "CTO, TechCorp" },
+      { name: "Prof. Ruslan Mitkov", role: "Design Lead, CreativeX" },
+      { name: "Dr. Fawaz Alazmi", role: "Founder, StartupOne" },
+      { name: "Prof. Fadi J. Kurdahi", role: "VP Engineering, BigData" },
+      { name: "Dr. Naveed Sherwani", role: "AI Lead, FutureTech" },
+      { name: "Mr. Rami Busbait", role: "Product Director, InnovateCo" },
+      { name: "Assoc. Prof. Mohammed Alshekly", role: "Head of Innovation, Nexa" },
+      { name: "Dr. Mohammed Alharbi", role: "Head of Innovation, Nexa" },
+      { name: "Prof. Abdullah Abdulmotaleb", role: "Head of Innovation, Nexa" },
+      { name: "Dr. Yervant Zorian", role: "Head of Innovation, Nexa" },
     ],
     []
   );

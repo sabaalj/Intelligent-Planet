@@ -8,6 +8,11 @@ import { fadeInUp, staggerContainer } from "./animationVariants";
 
 type TeamMember = {
   name: string;
+  /**
+   * Accepts either:
+   * - emoji flag (e.g. "🇸🇦")
+   * - 2-letter country code (e.g. "SA", "NG")
+   */
   flag: string;
 };
 
@@ -16,6 +21,20 @@ type Team = {
   university: string;
   members: TeamMember[];
 };
+
+/** Convert 2-letter country code (SA, NG, etc.) to flag emoji. If already emoji, returns as-is. */
+function countryCodeToFlagEmoji(codeOrEmoji: string) {
+  const v = codeOrEmoji?.trim();
+  if (!v) return "";
+
+  const cc = v.toUpperCase();
+  if (!/^[A-Z]{2}$/.test(cc)) return v; // already emoji or not a country code
+
+  const A = 0x1f1e6;
+  return String.fromCodePoint(
+    ...cc.split("").map((c) => A + c.charCodeAt(0) - 65)
+  );
+}
 
 function VerticalGridAutoScroller({
   items,
@@ -26,10 +45,12 @@ function VerticalGridAutoScroller({
 }) {
   const [isPaused, setIsPaused] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [gridHeight, setGridHeight] = useState<number>(0);
+
+  // height of ONE full loop: (grid1 + gap between grids)
+  const [loopHeight, setLoopHeight] = useState<number>(0);
 
   const y = useMotionValue(0);
-  const gridRef = useRef<HTMLDivElement | null>(null);
+  const loopRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -41,16 +62,18 @@ function VerticalGridAutoScroller({
   }, []);
 
   useEffect(() => {
-    if (!gridRef.current) return;
+    if (!loopRef.current) return;
 
     let raf1 = 0;
     let raf2 = 0;
 
     const measure = () => {
-      const el = gridRef.current;
+      const el = loopRef.current;
       if (!el) return;
-      const h = el.scrollHeight || Math.round(el.getBoundingClientRect().height);
-      if (h && h !== gridHeight) setGridHeight(h);
+
+      // This wrapper includes grid1 + the gap spacer, but NOT grid2
+      const h = Math.round(el.getBoundingClientRect().height);
+      if (h && h !== loopHeight) setLoopHeight(h);
     };
 
     raf1 = window.requestAnimationFrame(() => {
@@ -67,20 +90,27 @@ function VerticalGridAutoScroller({
   }, [items.length]);
 
   useAnimationFrame((_, delta) => {
-    if (prefersReducedMotion || isPaused || gridHeight <= 0) return;
+    if (prefersReducedMotion || isPaused || loopHeight <= 0) return;
 
     const moveBy = (speedPxPerSecond * delta) / 1000;
     let next = y.get() - moveBy;
 
-    if (next <= -gridHeight) next += gridHeight;
+    // wrap after exactly one full loop
+    if (next <= -loopHeight) next += loopHeight;
+
     y.set(next);
   });
 
+  const gridClass =
+    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-8 gap-y-8";
+
   if (prefersReducedMotion) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-8">
+      <div className={gridClass}>
         {items.map((node, idx) => (
-          <div key={idx}>{node}</div>
+          <div key={idx} className="min-w-[280px]">
+            {node}
+          </div>
         ))}
       </div>
     );
@@ -104,18 +134,26 @@ function VerticalGridAutoScroller({
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black to-transparent z-10" />
 
         <motion.div style={{ y }}>
-          <div
-            ref={gridRef}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-8"
-          >
-            {items.map((node, idx) => (
-              <div key={`grid1-${idx}`}>{node}</div>
-            ))}
+          {/* Measure ONE loop: grid1 + spacer (matches mt-8) */}
+          <div ref={loopRef}>
+            <div className={gridClass}>
+              {items.map((node, idx) => (
+                <div key={`grid1-${idx}`} className="min-w-[280px]">
+                  {node}
+                </div>
+              ))}
+            </div>
+
+            {/* spacer must match the gap between grid1 and grid2 */}
+            <div className="h-8" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-8 mt-8">
+          {/* Duplicate content for seamless scroll */}
+          <div className={gridClass}>
             {items.map((node, idx) => (
-              <div key={`grid2-${idx}`}>{node}</div>
+              <div key={`grid2-${idx}`} className="min-w-[280px]">
+                {node}
+              </div>
             ))}
           </div>
         </motion.div>
@@ -124,257 +162,262 @@ function VerticalGridAutoScroller({
   );
 }
 
+
 export default function TeamsSection() {
   const teams: Team[] = useMemo(
     () => [
       {
-        teamName: "Desert Innovators",
-        university: "King Saud University",
+        teamName: "Silico",
+        university: "Uniandes",
         members: [
-          { name: "Fahad", flag: "🇸🇦" },
-          { name: "Aisha", flag: "🇸🇦" },
-          { name: "Omar", flag: "🇦🇪" },
-          { name: "Lina", flag: "🇯🇴" },
+          { name: "Sebastian", flag: "🇨🇴" },
+          { name: "Nicolas", flag: "🇨🇴" },
+          { name: "Clay", flag: "🇨🇴" },
         ],
       },
       {
-        teamName: "Vision Builders",
-        university: "KAUST",
+        teamName: "HopeIn",
+        university: "REC",
         members: [
-          { name: "Sara", flag: "🇸🇦" },
-          { name: "Yousef", flag: "🇸🇦" },
-          { name: "Nour", flag: "🇪🇬" },
+          { name: "Naveen", flag: "🇮🇳" },
+          { name: "Ranjith", flag: "🇮🇳" },
+          { name: "Gokul", flag: "🇮🇳" },
+          { name: "Akshaya", flag: "🇮🇳" },
         ],
       },
       {
-        teamName: "Edge Pioneers",
+        teamName: "Neurostars",
+        university: "RIT",
+        members: [
+          { name: "Sakshi", flag: "🇮🇳" },
+          { name: "Pranali", flag: "🇮🇳" },
+          { name: "Ashutosh", flag: "🇮🇳" },
+          { name: "Gaurav", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "Palm Guardians",
+        university: "VLITS / GU",
+        members: [
+          { name: "Karthik", flag: "🇮🇳" },
+          { name: "Nithin", flag: "🇮🇳" },
+          { name: "Naveen", flag: "🇮🇳" },
+          { name: "Sumanth", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "Planet AI",
+        university: "KIIT / MRDC / CUJ",
+        members: [
+          { name: "Nalini", flag: "🇮🇳" },
+          { name: "Nupur", flag: "🇮🇳" },
+          { name: "Vivek", flag: "🇮🇳" },
+          { name: "Amrit", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "Unicorns",
+        university: "KPRIET",
+        members: [
+          { name: "Tabrej", flag: "🇮🇳" },
+          { name: "Aryan", flag: "🇮🇳" },
+          { name: "Shoaib", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "VibsOS2030",
+        university: "MU",
+        members: [
+          { name: "Nimesh", flag: "🇮🇳" },
+          { name: "Pratham", flag: "🇮🇳" },
+          { name: "Ansh", flag: "🇮🇳" },
+          { name: "Jainam", flag: "🇮🇳" },
+          { name: "Pranay", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "KRYS",
+        university: "ITB",
+        members: [
+          { name: "Rizky", flag: "🇮🇩" },
+          { name: "Muhammad", flag: "🇮🇩" },
+          { name: "Daffa", flag: "🇮🇩" },
+        ],
+      },
+      {
+        teamName: "Road Musketeers",
+        university: "UniMiB",
+        members: [
+          { name: "Federico", flag: "🇮🇹" },
+          { name: "Giulia", flag: "🇮🇹" },
+          { name: "Giorgia", flag: "🇮🇹" },
+        ],
+      },
+      {
+        teamName: "CS X CE",
+        university: "KU",
+        members: [
+          { name: "Sara", flag: "🇰🇼" },
+          { name: "Abdullah", flag: "🇰🇼" },
+          { name: "Fahad", flag: "🇰🇼" },
+          { name: "Noor", flag: "🇰🇼" },
+          { name: "Yousef", flag: "🇰🇼" },
+        ],
+      },
+      {
+        teamName: "Nova",
+        university: "KU",
+        members: [
+          { name: "Fatima", flag: "🇰🇼" },
+          { name: "Abdullah", flag: "🇰🇼" },
+          { name: "Fahad", flag: "🇰🇼" },
+          { name: "Noor", flag: "🇰🇼" },
+          { name: "Yousef", flag: "🇰🇼" },
+        ],
+      },
+      {
+        teamName: "EcoFlow",
+        university: "FUTMinna / FUTA",
+        members: [
+          { name: "Aminat", flag: "NG" }, // code works
+          { name: "Samuel", flag: "NG" },
+          { name: "Tobiloba", flag: "NG" },
+          { name: "Fatimah", flag: "NG" },
+        ],
+      },
+      {
+        teamName: "Manara",
+        university: "SU / GUtech",
+        members: [
+          { name: "Aisha", flag: "OM" }, // code works
+          { name: "Fatma", flag: "OM" },
+          { name: "Amal", flag: "OM" },
+          { name: "Muna", flag: "OM" },
+          { name: "Noor", flag: "OM" },
+        ],
+      },
+      {
+        teamName: "GeoGemma",
+        university: "IST",
+        members: [
+          { name: "Hassan", flag: "PK" },
+          { name: "Ahmad", flag: "PK" },
+          { name: "Muhammad", flag: "PK" },
+          { name: "Ayesha", flag: "PK" },
+        ],
+      },
+      {
+        teamName: "IntelliGents",
+        university: "BU",
+        members: [
+          { name: "John", flag: "PH" },
+          { name: "Mark", flag: "PH" },
+          { name: "Patricia", flag: "PH" },
+          { name: "Angela", flag: "PH" },
+        ],
+      },
+      {
+        teamName: "Althil",
+        university: "UB",
+        members: [
+          { name: "Mohammed", flag: "SA" },
+          { name: "Abdulrahman", flag: "SA" },
+          { name: "Abdullah", flag: "SA" },
+        ],
+      },
+      {
+        teamName: "ARD AI",
         university: "KFUPM",
         members: [
-          { name: "Abdullah", flag: "🇸🇦" },
-          { name: "Maha", flag: "🇧🇭" },
-          { name: "Hassan", flag: "🇰🇼" },
-          { name: "Reem", flag: "🇸🇦" },
-          { name: "Ziyad", flag: "🇴🇲" },
+          { name: "Abdullah", flag: "SA" },
+          { name: "Hussam", flag: "SA" },
+          { name: "Sultan", flag: "SA" },
+          { name: "Abdulaziz", flag: "SA" },
+          { name: "Fahad", flag: "SA" },
         ],
       },
       {
-        teamName: "Neural Nomads",
-        university: "Princess Nourah University",
+        teamName: "Oxigeneers",
+        university: "KFUPM",
         members: [
-          { name: "Huda", flag: "🇸🇦" },
-          { name: "Mariam", flag: "🇸🇦" },
-          { name: "Dana", flag: "🇱🇧" },
-          { name: "Rayan", flag: "🇸🇦" },
+          { name: "Hussam", flag: "SA" },
+          { name: "Hassan", flag: "SA" },
+          { name: "Abdulaziz", flag: "SA" },
+          { name: "Sultan", flag: "SA" },
         ],
       },
       {
-        teamName: "Green Horizon",
-        university: "Umm Al-Qura University",
+        teamName: "VisionRain",
+        university: "KAU",
         members: [
-          { name: "Talal", flag: "🇸🇦" },
-          { name: "Rima", flag: "🇸🇦" },
-          { name: "Majed", flag: "🇶🇦" },
-        ],
-      },
-
-      {
-        teamName: "Atlas Makers",
-        university: "Imam Abdulrahman Bin Faisal University",
-        members: [
-          { name: "Farah", flag: "🇸🇦" },
-          { name: "Nawaf", flag: "🇸🇦" },
-          { name: "Bilal", flag: "🇵🇰" },
-          { name: "Latifa", flag: "🇸🇦" },
+          { name: "Abeer", flag: "SA" },
+          { name: "Lama", flag: "SA" },
+          { name: "Zainab", flag: "SA" },
+          { name: "Alaa", flag: "SA" },
+          { name: "Nour", flag: "SA" },
         ],
       },
       {
-        teamName: "Data Dunes",
-        university: "King Abdulaziz University",
+        teamName: "Geminions",
+        university: "NTU",
         members: [
-          { name: "Sultan", flag: "🇸🇦" },
-          { name: "Manar", flag: "🇸🇦" },
-          { name: "Kareem", flag: "🇸🇩" },
-          { name: "Yara", flag: "🇸🇦" },
+          { name: "Shannon", flag: "SG" },
+          { name: "Jeremy", flag: "SG" },
+          { name: "Darren", flag: "SG" },
+          { name: "Ethan", flag: "SG" },
+          { name: "Nicole", flag: "SG" },
         ],
       },
       {
-        teamName: "Skyline Coders",
-        university: "Qassim University",
+        teamName: "Mangroovers",
+        university: "NTHU / IVE / UoA / UoB / CUHK",
         members: [
-          { name: "Adel", flag: "🇸🇦" },
-          { name: "Amal", flag: "🇸🇦" },
-          { name: "Yahya", flag: "🇲🇦" },
+          { name: "Ching", flag: "TW" },
+          { name: "Wing", flag: "HK" },
+          { name: "Kirsten", flag: "NZ" },
+          { name: "Katherine", flag: "GB" },
+          { name: "Chloe", flag: "HK" },
         ],
       },
       {
-        teamName: "Pulse Engineers",
-        university: "Taibah University",
+        teamName: "GPTify",
+        university: "ESPRIT",
         members: [
-          { name: "Lujain", flag: "🇸🇦" },
-          { name: "Nasser", flag: "🇸🇦" },
-          { name: "Raghad", flag: "🇹🇳" },
-          { name: "Noor", flag: "🇸🇦" },
-          { name: "Saad", flag: "🇸🇦" },
+          { name: "Mohamed", flag: "TN" },
+          { name: "Ons", flag: "TN" },
+          { name: "Marwa", flag: "TN" },
         ],
       },
       {
-        teamName: "Crescent Labs",
-        university: "King Khalid University",
+        teamName: "Groot",
+        university: "UoM",
         members: [
-          { name: "Shahad", flag: "🇸🇦" },
-          { name: "Ibrahim", flag: "🇸🇦" },
-          { name: "Mona", flag: "🇯🇴" },
-          { name: "Turki", flag: "🇸🇦" },
-        ],
-      },
-
-      {
-        teamName: "Saffron Stack",
-        university: "University of Jeddah",
-        members: [
-          { name: "Rasha", flag: "🇸🇦" },
-          { name: "Hessa", flag: "🇸🇦" },
-          { name: "Hind", flag: "🇪🇬" },
+          { name: "Yousef", flag: "GB" },
+          { name: "Abdullah", flag: "GB" },
+          { name: "Nasser", flag: "GB" },
+          { name: "Fahad", flag: "GB" },
+          { name: "Turki", flag: "GB" },
         ],
       },
       {
-        teamName: "Aurora Foundry",
-        university: "Jazan University",
+        teamName: "PalmPulse",
+        university: "UC Berkeley / SXC",
         members: [
-          { name: "Salman", flag: "🇸🇦" },
-          { name: "Faisal", flag: "🇸🇦" },
-          { name: "Khalid", flag: "🇰🇼" },
-          { name: "Maha", flag: "🇧🇭" },
+          { name: "Catherine", flag: "US" },
+          { name: "Niranjan", flag: "US" },
+          { name: "Daniel", flag: "US" },
+          { name: "Sanjay", flag: "NP" },
         ],
       },
       {
-        teamName: "Quantum Caravan",
-        university: "Najran University",
+        teamName: "Binary Bros",
+        university: "EMU / KFUPM",
         members: [
-          { name: "Omar", flag: "🇸🇦" },
-          { name: "Sara", flag: "🇸🇦" },
-          { name: "Dana", flag: "🇱🇧" },
-          { name: "Bilal", flag: "🇵🇰" },
-          { name: "Nour", flag: "🇪🇬" },
-        ],
-      },
-      {
-        teamName: "Innovate Coast",
-        university: "University of Tabuk",
-        members: [
-          { name: "Yousef", flag: "🇸🇦" },
-          { name: "Aisha", flag: "🇸🇦" },
-          { name: "Kareem", flag: "🇸🇩" },
-        ],
-      },
-      {
-        teamName: "Signal Weavers",
-        university: "Alfaisal University",
-        members: [
-          { name: "Latifa", flag: "🇸🇦" },
-          { name: "Huda", flag: "🇸🇦" },
-          { name: "Rayan", flag: "🇲🇦" },
-          { name: "Reem", flag: "🇸🇦" },
-        ],
-      },
-
-      {
-        teamName: "Falcon Futures",
-        university: "Prince Sultan University",
-        members: [
-          { name: "Majed", flag: "🇸🇦" },
-          { name: "Manar", flag: "🇸🇦" },
-          { name: "Turki", flag: "🇴🇲" },
-          { name: "Rima", flag: "🇸🇦" },
-        ],
-      },
-      {
-        teamName: "Oasis Operators",
-        university: "Effat University",
-        members: [
-          { name: "Mona", flag: "🇸🇦" },
-          { name: "Shahad", flag: "🇸🇦" },
-          { name: "Amal", flag: "🇸🇦" },
-        ],
-      },
-      {
-        teamName: "Blue Sand Systems",
-        university: "Batterjee Medical College",
-        members: [
-          { name: "Saad", flag: "🇸🇦" },
-          { name: "Ibrahim", flag: "🇸🇦" },
-          { name: "Hind", flag: "🇹🇳" },
-          { name: "Yahya", flag: "🇲🇦" },
-          { name: "Noor", flag: "🇸🇦" },
-        ],
-      },
-      {
-        teamName: "Delta Makers",
-        university: "Islamic University of Madinah",
-        members: [
-          { name: "Nasser", flag: "🇸🇦" },
-          { name: "Fahad", flag: "🇸🇦" },
-          { name: "Lina", flag: "🇯🇴" },
-        ],
-      },
-      {
-        teamName: "Cobalt Crew",
-        university: "Shaqra University",
-        members: [
-          { name: "Raghad", flag: "🇸🇦" },
-          { name: "Dana", flag: "🇱🇧" },
-          { name: "Khalid", flag: "🇶🇦" },
-          { name: "Sara", flag: "🇸🇦" },
-        ],
-      },
-
-      {
-        teamName: "Sustain Sprint",
-        university: "King Faisal University",
-        members: [
-          { name: "Aisha", flag: "🇸🇦" },
-          { name: "Omar", flag: "🇦🇪" },
-          { name: "Maha", flag: "🇧🇭" },
-        ],
-      },
-      {
-        teamName: "Wadi Wizards",
-        university: "University of Hail",
-        members: [
-          { name: "Talal", flag: "🇸🇦" },
-          { name: "Yousef", flag: "🇸🇦" },
-          { name: "Bilal", flag: "🇵🇰" },
-          { name: "Kareem", flag: "🇸🇩" },
-        ],
-      },
-      {
-        teamName: "Nimbus Nine",
-        university: "University of Business & Technology",
-        members: [
-          { name: "Latifa", flag: "🇸🇦" },
-          { name: "Rima", flag: "🇸🇦" },
-          { name: "Huda", flag: "🇸🇦" },
-          { name: "Nour", flag: "🇪🇬" },
-        ],
-      },
-      {
-        teamName: "Cedar Circuit",
-        university: "Dar Al-Hekma University",
-        members: [
-          { name: "Mona", flag: "🇸🇦" },
-          { name: "Rasha", flag: "🇸🇦" },
-          { name: "Dana", flag: "🇱🇧" },
-          { name: "Yahya", flag: "🇲🇦" },
-          { name: "Saad", flag: "🇸🇦" },
-        ],
-      },
-      {
-        teamName: "Turing Tides",
-        university: "Riyadh Elm University",
-        members: [
-          { name: "Ibrahim", flag: "🇸🇦" },
-          { name: "Shahad", flag: "🇸🇦" },
-          { name: "Khalid", flag: "🇰🇼" },
+          { name: "Mohammad", flag: "US" },
+          { name: "Zaid", flag: "US" },
+          { name: "Ali", flag: "US" },
+          { name: "Ammar", flag: "US" },
+          { name: "Abdullah", flag: "SA" },
         ],
       },
     ],
@@ -395,7 +438,6 @@ export default function TeamsSection() {
           </div>
 
           <div className="text-left min-w-0">
-            {/* slightly larger + allow wrap */}
             <p className="font-semibold text-base leading-snug break-words">
               {t.teamName}
             </p>
@@ -405,16 +447,18 @@ export default function TeamsSection() {
           </div>
         </div>
 
-        {/* Member chips: give each chip more room so names like "Nasser" fit */}
+        {/* Member chips: truncate long names so they don't break the card layout */}
         <div className="mt-5 grid grid-cols-2 gap-3">
           {t.members.map((m, i) => (
             <div
               key={i}
-              className="text-sm text-white/75 bg-white/[0.03] border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-2 justify-center"
+              className="text-sm text-white/75 bg-white/[0.03] border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-2 justify-center min-w-0"
               title={m.name}
             >
-              <span className="text-base leading-none">{m.flag}</span>
-              <span className="whitespace-nowrap">{m.name}</span>
+              <span className="text-base leading-none">
+                {countryCodeToFlagEmoji(m.flag)}
+              </span>
+              <span className="min-w-0 truncate">{m.name}</span>
             </div>
           ))}
         </div>
