@@ -112,7 +112,7 @@ export default function JourneySection() {
         <SectionFrame
           title="Event Journey"
           subtitle="Your path from registration to recognition"
-          accentColor="cyan"
+          accentColor="blue"
         >
           <Timeline />
         </SectionFrame>
