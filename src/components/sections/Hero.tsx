@@ -1,36 +1,9 @@
 "use client";
 
-import { motion, AnimatePresence, type Variants } from "framer-motion";
-import {
-  ChevronRight,
-  X,
-  Clock,
-  User,
-  Globe,
-  Mic,
-  Trophy,
-  Users,
-} from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-
-import { getCurrentUser, onUserUpdated } from "@/lib/userSession";
-import {
-  buildSessionId,
-  fetchRegisteredSessions,
-  registerSession,
-  type RegisteredSession,
-  onSessionsUpdated,
-} from "@/lib/sessionRegistration";
-
-interface HeroProps {
-  fadeIn: Variants;
-  staggerContainer: Variants;
-  openSchedule?: {
-    building?: BuildingKey;
-    day?: DayKey;
-  };
-}
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
 
 type DayKey = "Day 1" | "Day 2" | "Day 3";
 type BuildingKey = "Building 57" | "Building 70";
@@ -56,10 +29,7 @@ const SCHEDULE_DATA: ScheduleData = {
       date: "Feb 2, 2026",
       events: [
         { time: "04:30 PM", activity: "Registration" },
-        {
-          time: "05:30 PM",
-          activity: "Opening Ceremony by College of Computing",
-        },
+        { time: "05:30 PM", activity: "Opening Ceremony by College of Computing" },
         { time: "06:30 PM", activity: "Technical Workshop by Google Cloud" },
       ],
     },
@@ -95,42 +65,14 @@ const SCHEDULE_DATA: ScheduleData = {
       date: "Feb 3, 2026",
       events: [
         { time: "09:30 AM", session: "Registration & Breakfast", speakers: "-" },
-        {
-          time: "10:00 AM",
-          session: "Welcoming Remarks",
-          speakers: "Dr. Ahmed Al-Khalidi",
-        },
-        {
-          time: "10:30 AM",
-          session: "Keynote 1: AI For Humanity & Planet",
-          speakers: "Dr. Sarah Johnson",
-        },
-        {
-          time: "11:00 AM",
-          session: "Panel 1: Sustainable AI for the Planet",
-          speakers: "Prof. Michael Chen, Dr. Lisa Wang",
-        },
+        { time: "10:00 AM", session: "Welcoming Remarks", speakers: "Dr. Ahmed Al-Khalidi" },
+        { time: "10:30 AM", session: "Keynote 1: AI For Humanity & Planet", speakers: "Dr. Sarah Johnson" },
+        { time: "11:00 AM", session: "Panel 1: Sustainable AI for the Planet", speakers: "Prof. Michael Chen, Dr. Lisa Wang" },
         { time: "12:00 PM", session: "Lunch Break", speakers: "-" },
-        {
-          time: "01:30 PM",
-          session: "Google's Session: Design Thinking Workshop",
-          speakers: "Google Cloud Team",
-        },
-        {
-          time: "02:30 PM",
-          session: "Keynote 2: Safe AI on a Global Scale",
-          speakers: "Dr. James Wilson",
-        },
-        {
-          time: "03:00 PM",
-          session: "Panel 2: Education for Digital Industry",
-          speakers: "Dr. Elena Rossi, Dr. Kevin Smith",
-        },
-        {
-          time: "04:00 PM",
-          session: "Keynote 3: Intelligent systems for World connection",
-          speakers: "Dr. Maria Garcia",
-        },
+        { time: "01:30 PM", session: "Google's Session: Design Thinking Workshop", speakers: "Google Cloud Team" },
+        { time: "02:30 PM", session: "Keynote 2: Safe AI on a Global Scale", speakers: "Dr. James Wilson" },
+        { time: "03:00 PM", session: "Panel 2: Education for Digital Industry", speakers: "Dr. Elena Rossi, Dr. Kevin Smith" },
+        { time: "04:00 PM", session: "Keynote 3: Intelligent systems for World connection", speakers: "Dr. Maria Garcia" },
       ],
     },
     "Day 3": {
@@ -141,12 +83,24 @@ const SCHEDULE_DATA: ScheduleData = {
         { time: "12:00 PM", session: "Lunch Break", speakers: "-" },
         { time: "01:30 PM", session: "Judging Resumes", speakers: "Panel of Judges" },
         { time: "04:00 PM", session: "Judging Finishes", speakers: "-" },
-        {
-          time: "05:00 PM",
-          session: "Awards & Closing Ceremony",
-          speakers: "VIP Guests",
-        },
+        { time: "05:00 PM", session: "Awards & Closing Ceremony", speakers: "VIP Guests" },
       ],
+    },
+  },
+};
+
+// Variants are now defined INSIDE this file (no props needed)
+const fadeIn: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const staggerContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
     },
   },
 };
@@ -163,7 +117,7 @@ function Stat({
   label,
   custom = 0,
 }: {
-  icon: ReactNode;
+  icon: React.ReactNode;
   value: string;
   label: string;
   custom?: number;
@@ -207,134 +161,13 @@ function Stat({
   );
 }
 
-export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroProps) {
+export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeBuilding, setActiveBuilding] = useState<BuildingKey>("Building 57");
   const [activeDay, setActiveDay] = useState<DayKey>("Day 1");
 
-  // ✅ مهم: نخلي أول رندر ثابت على السيرفر والعميل
-  const [mounted, setMounted] = useState(false);
-
-  // ✅ مهم: لا تقرأ getCurrentUser داخل useState initializer
-  const [userEmail, setUserEmail] = useState<string>("");
-
-  const [registeredIds, setRegisteredIds] = useState<Set<string>>(new Set());
-  const [loadingSessions, setLoadingSessions] = useState(false);
-
-  // ✅ بعد الـ mount فقط نقرأ اليوزر ونسمع للتحديثات
-  useEffect(() => {
-    setMounted(true);
-    setUserEmail(getCurrentUser()?.email || "");
-
-    return onUserUpdated(() => setUserEmail(getCurrentUser()?.email || ""));
-  }, []);
-
-  const activeDate = useMemo(
-    () => SCHEDULE_DATA[activeBuilding][activeDay].date,
-    [activeBuilding, activeDay]
-  );
-
-  // ✅ Join Us button behavior (بدون Hydration mismatch)
-  const isLoggedIn = mounted && !!userEmail;
-  const joinLabel = !mounted ? "Join Us" : isLoggedIn ? "Register Sessions" : "Join Us";
-
-  const handleJoinUs = () => {
-    // قبل الـ mount اعتبريه غير مسجل
-    if (!mounted || !isLoggedIn) {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("ip:open_register"));
-      }
-      return;
-    }
-
-    // Logged in -> open schedule on Building 70 / Day 2
-    setActiveBuilding("Building 70");
-    setActiveDay("Day 2");
-    setIsModalOpen(true);
-  };
-
-  // Load user's registered sessions so the schedule can show "Register" / "Registered".
-  useEffect(() => {
-    if (!isModalOpen) return;
-
-    if (!userEmail) {
-      setRegisteredIds(new Set());
-      return;
-    }
-
-    let alive = true;
-
-    const load = async () => {
-      setLoadingSessions(true);
-      try {
-        const sessions = await fetchRegisteredSessions(userEmail);
-        if (!alive) return;
-        setRegisteredIds(new Set(sessions.map((s) => s.id)));
-      } finally {
-        if (alive) setLoadingSessions(false);
-      }
-    };
-
-    load();
-    const unsub = onSessionsUpdated(load);
-
-    return () => {
-      alive = false;
-      unsub();
-    };
-  }, [isModalOpen, userEmail]);
-
-  useEffect(() => {
-    if (!openSchedule) return;
-    if (openSchedule.building) setActiveBuilding(openSchedule.building);
-    if (openSchedule.day) setActiveDay(openSchedule.day);
-    setIsModalOpen(true);
-  }, [openSchedule]);
-
   const bgSrc = "/assets/MainBackground.png";
   const globeSrc = "/assets/Globe-Full.png";
-
-  const handleRegisterConferenceSession = async (event: Building70Event) => {
-    if (!userEmail) {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("ip:open_register"));
-      }
-      return;
-    }
-
-    const session: RegisteredSession = {
-      id: buildSessionId({
-        building: "Building 70",
-        day: activeDay,
-        time: event.time,
-        title: event.session,
-      }),
-      building: "Building 70",
-      day: activeDay,
-      date: activeDate,
-      time: event.time,
-      title: event.session,
-      speakers: event.speakers,
-    };
-
-    // Optimistic UI update.
-    setRegisteredIds((prev) => {
-      const next = new Set(prev);
-      next.add(session.id);
-      return next;
-    });
-
-    try {
-      await registerSession(userEmail, session);
-    } catch {
-      // Revert on failure.
-      setRegisteredIds((prev) => {
-        const next = new Set(prev);
-        next.delete(session.id);
-        return next;
-      });
-    }
-  };
 
   return (
     <>
@@ -377,7 +210,12 @@ export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroPro
         </motion.div>
 
         <div className="container mx-auto px-6 relative z-10 text-center flex flex-col flex-1 justify-center pb-0">
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-6xl mx-auto w-full">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="max-w-6xl mx-auto w-full"
+          >
             <motion.div variants={fadeIn} className="mb-4 flex justify-center">
               <span
                 className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sm font-medium uppercase tracking-widest"
@@ -419,25 +257,29 @@ export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroPro
               />
             </motion.div>
 
-            <motion.p variants={fadeIn} className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-8 font-light italic">
+            <motion.p
+              variants={fadeIn}
+              className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-8 font-light italic"
+            >
               "AI Solutions for an Intelligent Planet"
             </motion.p>
 
-            <motion.p variants={fadeIn} className="text-base text-white/70 max-w-3xl mx-auto mb-8 font-light leading-relaxed">
-              KFUPM in partnership with Google Cloud brings together top innovators from the world's leading universities to solve
-              challenges aligned with Saudi Vision 2030.
+            <motion.p
+              variants={fadeIn}
+              className="text-base text-white/70 max-w-3xl mx-auto mb-8 font-light leading-relaxed"
+            >
+              KFUPM in partnership with Google Cloud brings together top innovators from the world's leading
+              universities to solve challenges aligned with Saudi Vision 2030.
             </motion.p>
 
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              {/* ✅ UPDATED JOIN US BUTTON */}
               <button
                 className="w-full sm:w-auto px-8 py-4 text-white rounded font-medium transition-all flex items-center justify-center gap-2 group box-glow"
                 style={{ backgroundColor: PRIMARY }}
                 onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.95)")}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
-                onClick={handleJoinUs}
               >
-                {joinLabel}
+                Join Us
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -450,7 +292,7 @@ export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroPro
             </motion.div>
           </motion.div>
 
-          {/* ✅ STATS */}
+          {/* ✅ STATS INTEGRATED HERE */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -560,7 +402,10 @@ export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroPro
 
                   {/* Active day label */}
                   <div className="py-4 text-center shrink-0">
-                    <span className="font-heading font-bold text-lg uppercase tracking-[0.3em]" style={{ color: PRIMARY }}>
+                    <span
+                      className="font-heading font-bold text-lg uppercase tracking-[0.3em]"
+                      style={{ color: PRIMARY }}
+                    >
                       {activeDay}
                     </span>
                     <p className="text-white text-sm mt-1">{SCHEDULE_DATA[activeBuilding][activeDay].date}</p>
@@ -620,18 +465,12 @@ export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroPro
                                 Conference Session
                               </th>
                               <th
-                                className="px-4 py-3 font-bold bg-white text-black text-center border-b-2"
+                                className="px-4 py-3 font-bold bg-white text-black rounded-tr-lg text-center border-b-2"
                                 style={{ borderBottomColor: `${PRIMARY}33` }}
                               >
                                 <div className="flex items-center justify-center gap-2">
                                   <User className="w-3 h-3" /> Speaker(s)
                                 </div>
-                              </th>
-                              <th
-                                className="px-4 py-3 font-bold bg-white text-black rounded-tr-lg text-center border-b-2"
-                                style={{ borderBottomColor: `${PRIMARY}33` }}
-                              >
-                                Register
                               </th>
                             </tr>
                           </thead>
@@ -644,36 +483,8 @@ export default function Hero({ fadeIn, staggerContainer, openSchedule }: HeroPro
                                 <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm text-center group-hover:bg-white/20 transition-colors">
                                   {event.session}
                                 </td>
-                                <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm italic text-center group-hover:bg-white/20 transition-colors">
+                                <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm italic text-center rounded-r-lg group-hover:bg-white/20 transition-colors">
                                   {event.speakers}
-                                </td>
-                                <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm text-center rounded-r-lg group-hover:bg-white/20 transition-colors">
-                                  {(() => {
-                                    const sessionId = buildSessionId({
-                                      building: "Building 70",
-                                      day: activeDay,
-                                      time: event.time,
-                                      title: event.session,
-                                    });
-
-                                    const isRegistered = registeredIds.has(sessionId);
-                                    const disabled = !userEmail || loadingSessions || isRegistered;
-
-                                    return (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleRegisterConferenceSession(event)}
-                                        disabled={disabled}
-                                        className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border ${
-                                          isRegistered
-                                            ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-200"
-                                            : "bg-[#005287]/20 border-[#005287]/40 text-white hover:bg-[#005287]/35"
-                                        } ${disabled && !isRegistered ? "opacity-50 cursor-not-allowed" : ""}`}
-                                      >
-                                        {isRegistered ? "Registered" : "Register"}
-                                      </button>
-                                    );
-                                  })()}
                                 </td>
                               </tr>
                             ))}

@@ -3,11 +3,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
+type AccentColor = "blue" | "purple" | "green" | "orange" | "red";
+
 interface SectionFrameProps {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
   className?: string;
+  accentColor?: AccentColor; // ✅ added
 }
 
 export function SectionFrame({
@@ -15,6 +18,7 @@ export function SectionFrame({
   subtitle,
   children,
   className = "",
+  accentColor = "blue", // ✅ added default
 }: SectionFrameProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -29,7 +33,18 @@ export function SectionFrame({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const PRIMARY_BLUE = "#325678";
+  const ACCENTS: Record<
+    AccentColor,
+    { solid: string; line: string; solidHex: string }
+  > = {
+    blue: { solid: "bg-[#325678]", line: "bg-[#325678]/40", solidHex: "#325678" },
+    purple: { solid: "bg-purple-600", line: "bg-purple-500/40", solidHex: "#7c3aed" },
+    green: { solid: "bg-emerald-600", line: "bg-emerald-500/40", solidHex: "#059669" },
+    orange: { solid: "bg-orange-600", line: "bg-orange-500/40", solidHex: "#ea580c" },
+    red: { solid: "bg-red-600", line: "bg-red-500/40", solidHex: "#dc2626" },
+  };
+
+  const accent = ACCENTS[accentColor];
 
   const barCount = 15;
   const barHeightDesktop = 32;
@@ -43,7 +58,7 @@ export function SectionFrame({
       <div className="relative w-full">
         <div className="flex items-center gap-0 mb-10 sm:mb-12">
           <motion.div
-            className="flex-shrink-0 bg-[#325678] px-6 sm:px-8 py-4 sm:py-5"
+            className={`flex-shrink-0 px-6 sm:px-8 py-4 sm:py-5 ${accent.solid}`}
             initial={
               prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: -30 }
             }
@@ -61,7 +76,7 @@ export function SectionFrame({
           </motion.div>
 
           <motion.div
-            className="h-[2px] flex-1 bg-[#325678]/40"
+            className={`h-[2px] flex-1 ${accent.line}`}
             initial={prefersReducedMotion ? { scaleX: 1 } : { scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -72,10 +87,11 @@ export function SectionFrame({
             {Array.from({ length: barCount }).map((_, i) => (
               <motion.div
                 key={i}
-                className="w-[3px] bg-[#325678] transform -skew-x-12"
+                className="w-[3px] transform -skew-x-12"
                 style={{
                   height: `${barHeightDesktop}px`,
                   opacity: 0.6 + (i % 4) * 0.1,
+                  backgroundColor: accent.solidHex,
                 }}
                 initial={
                   prefersReducedMotion
@@ -100,10 +116,11 @@ export function SectionFrame({
             {Array.from({ length: 10 }).map((_, i) => (
               <motion.div
                 key={i}
-                className="w-[2.5px] bg-[#325678] transform -skew-x-12"
+                className="w-[2.5px] transform -skew-x-12"
                 style={{
                   height: `${barHeightMobile}px`,
                   opacity: 0.6 + (i % 4) * 0.1,
+                  backgroundColor: accent.solidHex,
                 }}
                 initial={
                   prefersReducedMotion
