@@ -175,12 +175,10 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-black text-white overflow-x-hidden">
-      <Navbar
-        onRegisterClick={() => setIsRegisterModalOpen(true)}
-      />
+      <Navbar onRegisterClick={() => setIsRegisterModalOpen(true)} />
 
-      {/* ✅ Hero بدون onRegisterClick (عشان ما يطلع خطأ Props) */}
-      <Hero fadeIn={fadeInUp} staggerContainer={fadeInUp} />
+      {/* ✅ FIX: Hero.tsx ما يقبل props — نخليه مثل ما هو */}
+      <Hero />
 
       <RegistrationModal
         isOpen={isRegisterModalOpen}
@@ -320,10 +318,16 @@ export default function Home() {
             © {new Date().getFullYear()} Intelligent Planet. All rights reserved.
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/conference" className="text-white/60 hover:text-white transition-colors text-sm">
+            <Link
+              href="/conference"
+              className="text-white/60 hover:text-white transition-colors text-sm"
+            >
               Conference
             </Link>
-            <Link href="/conference/faq" className="text-white/60 hover:text-white transition-colors text-sm">
+            <Link
+              href="/conference/faq"
+              className="text-white/60 hover:text-white transition-colors text-sm"
+            >
               FAQ
             </Link>
           </div>
