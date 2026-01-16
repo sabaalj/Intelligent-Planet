@@ -480,7 +480,7 @@ export default function TeamsSection() {
         <SectionFrame
           title="Participating Teams"
           subtitle="Meet the innovators building the future"
-          accentColor="purple"
+          accentColor="blue"
         >
           <div className="mt-10">
             <VerticalGridAutoScroller items={cards} speedPxPerSecond={55} />
