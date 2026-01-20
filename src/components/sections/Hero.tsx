@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
+import {
+  ChevronRight,
+  X,
+  Clock,
+  User,
+  Globe,
+  Mic,
+  Trophy,
+  Users,
+} from "lucide-react";
 
 type DayKey = "Day 1" | "Day 2" | "Day 3";
 type BuildingKey = "Building 57" | "Building 70";
@@ -166,6 +175,25 @@ export default function Hero() {
 
   const bgSrc = "/assets/MainBackground.png";
   const globeSrc = "/assets/Globe-Full.png";
+
+  // ✅ FIX: لما المودال يفتح، نقفل سكرول الصفحة (عشان ما يطلع شريطين)
+  useEffect(() => {
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+
+    if (isModalOpen) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    }
+
+    return () => {
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, [isModalOpen]);
 
   return (
     <>
@@ -409,7 +437,8 @@ export default function Hero() {
                     <p className="text-white text-sm mt-1">{SCHEDULE_DATA[activeBuilding][activeDay].date}</p>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-8 custom-scrollbar">
+                  {/* ✅ هذا السكرول داخل المودال فقط (والصفحة مقفلة) */}
+                  <div className="flex-1 min-h-0 overflow-y-auto px-6 md:px-8 pb-8">
                     <div className="overflow-x-auto">
                       {activeBuilding === "Building 57" ? (
                         <table className="w-full text-center border-separate border-spacing-y-2">
