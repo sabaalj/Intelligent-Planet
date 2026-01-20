@@ -1,18 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import {
-  ChevronRight,
-  X,
-  Clock,
-  User,
-  Globe,
-  Mic,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
+import { getCurrentUser } from "@/lib/userSession";
 
 type DayKey = "Day 1" | "Day 2" | "Day 3";
 type BuildingKey = "Building 57" | "Building 70";
@@ -168,32 +160,39 @@ function Stat({
   );
 }
 
-export default function Hero() {
+export default function Hero({
+  onOpenRegistration,
+}: {
+  onOpenRegistration?: () => void;
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeBuilding, setActiveBuilding] = useState<BuildingKey>("Building 57");
   const [activeDay, setActiveDay] = useState<DayKey>("Day 1");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const bgSrc = "/assets/MainBackground.png";
   const globeSrc = "/assets/Globe-Full.png";
 
-  // ✅ FIX: لما المودال يفتح، نقفل سكرول الصفحة (عشان ما يطلع شريطين)
+  // Check if user is logged in
   useEffect(() => {
-    const prevHtmlOverflow = document.documentElement.style.overflow;
-    const prevBodyOverflow = document.body.style.overflow;
+    const user = getCurrentUser();
+    setIsLoggedIn(!!user);
+  }, []);
 
-    if (isModalOpen) {
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
+  // Handle Join Us button click
+  const handleJoinUsClick = () => {
+    if (isLoggedIn) {
+      // User is logged in - open schedule modal to Building 70, Day 2
+      setActiveBuilding("Building 70");
+      setActiveDay("Day 2");
+      setIsModalOpen(true);
     } else {
-      document.documentElement.style.overflow = prevHtmlOverflow;
-      document.body.style.overflow = prevBodyOverflow;
+      // User is not logged in - open registration modal
+      if (onOpenRegistration) {
+        onOpenRegistration();
+      }
     }
-
-    return () => {
-      document.documentElement.style.overflow = prevHtmlOverflow;
-      document.body.style.overflow = prevBodyOverflow;
-    };
-  }, [isModalOpen]);
+  };
 
   return (
     <>
@@ -300,12 +299,13 @@ export default function Hero() {
 
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
+                onClick={handleJoinUsClick}
                 className="w-full sm:w-auto px-8 py-4 text-white rounded font-medium transition-all flex items-center justify-center gap-2 group box-glow"
                 style={{ backgroundColor: PRIMARY }}
                 onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.95)")}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
               >
-                Join Us
+                {isLoggedIn ? "Register Now" : "Join Us"}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -437,8 +437,7 @@ export default function Hero() {
                     <p className="text-white text-sm mt-1">{SCHEDULE_DATA[activeBuilding][activeDay].date}</p>
                   </div>
 
-                  {/* ✅ هذا السكرول داخل المودال فقط (والصفحة مقفلة) */}
-                  <div className="flex-1 min-h-0 overflow-y-auto px-6 md:px-8 pb-8">
+                  <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-8 custom-scrollbar">
                     <div className="overflow-x-auto">
                       {activeBuilding === "Building 57" ? (
                         <table className="w-full text-center border-separate border-spacing-y-2">
