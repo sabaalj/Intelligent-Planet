@@ -28,7 +28,7 @@ export default function Home() {
       />
 
       {/* SECTION 1 */}
-      <Hero />
+      <Hero onOpenRegistration={() => setIsRegisterModalOpen(true)} />
 
       {/* SECTION 2 */}
       <AboutHackathonSection />
