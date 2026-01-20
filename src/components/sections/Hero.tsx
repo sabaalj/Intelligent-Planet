@@ -89,7 +89,6 @@ const SCHEDULE_DATA: ScheduleData = {
   },
 };
 
-// Variants are now defined INSIDE this file (no props needed)
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -105,7 +104,6 @@ const staggerContainer: Variants = {
   },
 };
 
-// Inline variant so stats can animate without importing another file
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -171,7 +169,7 @@ export default function Hero() {
 
   return (
     <>
-      <section id="hero" className="relative h-screen flex flex-col pt-16 overflow-hidden pb-0">
+      <section id="hero" className="relative min-h-screen flex flex-col pt-16 pb-12">
         <div className="absolute inset-0 z-0">
           <Image
             src={bgSrc}
@@ -209,7 +207,7 @@ export default function Hero() {
           />
         </motion.div>
 
-        <div className="container mx-auto px-6 relative z-10 text-center flex flex-col flex-1 justify-center pb-0">
+        <div className="container mx-auto px-6 relative z-10 text-center flex flex-col flex-1 justify-center py-8">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -292,18 +290,18 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* ✅ STATS INTEGRATED HERE */}
+          {/* Stats section with proper spacing */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="mt-10 mb-0 w-full max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center"
+            className="mt-12 w-full max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center"
           >
-            <Stat icon={<Users className="h-4 w-4 sm:h-5 sm:w-5" />} value="500+" label="Participants" custom={0} />
-            <Stat icon={<Trophy className="h-4 w-4 sm:h-5 sm:w-5" />} value="$50k" label="Prizes" custom={1} />
-            <Stat icon={<Mic className="h-4 w-4 sm:h-5 sm:w-5" />} value="24" label="Speakers" custom={2} />
-            <Stat icon={<Globe className="h-4 w-4 sm:h-5 sm:w-5" />} value="30+" label="Countries" custom={3} />
+            <Stat icon={<Users className="h-4 w-4 sm:h-5 sm:w-5" />} value="2100+" label="Applicants" custom={0} />
+            <Stat icon={<Trophy className="h-4 w-4 sm:h-5 sm:w-5" />} value="$55k+" label="Prizes" custom={1} />
+            <Stat icon={<Mic className="h-4 w-4 sm:h-5 sm:w-5" />} value="15" label="Speakers" custom={2} />
+            <Stat icon={<Globe className="h-4 w-4 sm:h-5 sm:w-5" />} value="50" label="Countries" custom={3} />
           </motion.div>
         </div>
       </section>

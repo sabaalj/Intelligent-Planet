@@ -124,42 +124,51 @@
   }
 }
 
-@keyframes spin-slow {
-  to {
-    transform: rotate(360deg);
-  }
+/* ===============================
+   GLOBAL WEBSITE SCROLLBAR
+   Color: #005287
+   =============================== */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #005287 rgba(255,255,255,0.08);
 }
 
-.animate-spin-slow {
-  animation: spin-slow 22s linear infinite;
+/* Chrome / Edge / Safari */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
 
-.perspective {
-  perspective: 1200px;
+::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 
-@keyframes planetSpin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+::-webkit-scrollbar-thumb {
+  background: #005287;
+  border-radius: 999px;
+  border: 3px solid rgba(0,0,0,0);
+  background-clip: padding-box;
+  transition: box-shadow 0.25s ease;
 }
 
-@keyframes planetFloat {
-  0%,100% { transform: translateY(0px); }
-  50%     { transform: translateY(-10px); }
+::-webkit-scrollbar-thumb:hover {
+  box-shadow:
+    0 0 10px rgba(0,82,135,0.55),
+    0 0 20px rgba(0,82,135,0.35);
 }
 
-.planet-spin {
-  animation: planetSpin 90s linear infinite;
-  transform-origin: center center;
-  will-change: transform;
+::-webkit-scrollbar-thumb:active {
+  box-shadow:
+    0 0 14px rgba(0,82,135,0.75),
+    0 0 28px rgba(0,82,135,0.5);
 }
 
-.planet-float {
-  animation: planetFloat 6s ease-in-out infinite;
-  will-change: transform;
-}
-
-/* Judges horizontal scrollbar */
+/* Judges horizontal scrollbar (UNCHANGED) */
 .judge-scroll {
   scrollbar-color: #005287 #000000;
   scrollbar-width: thin;

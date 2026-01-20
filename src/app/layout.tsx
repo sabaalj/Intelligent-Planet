@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     description:
       "AI Solutions for an Intelligent Planet. Join the global innovation challenge at KFUPM in partnership with Google Cloud.",
     type: "website",
-    images: ["https://replit.com/public/images/opengraph.png"],
+    images: ["public/assets/MainBackground.png"],
   },
 
   twitter: {
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "Intelligent Planet Hackathon 2026",
     description:
       "AI Solutions for an Intelligent Planet. Join the global innovation challenge at KFUPM in partnership with Google Cloud.",
-    images: ["https://replit.com/public/images/opengraph.png"],
+    images: ["public/assets/MainBackground.png"],
   },
 
   icons: {

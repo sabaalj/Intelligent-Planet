@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { SectionFrame } from "@/components/SectionFrame";
-import { slideFromLeft, slideFromRight, staggerContainer } from "./animationVariants";
+import {
+  slideFromLeft,
+  slideFromRight,
+  staggerContainer,
+} from "./animationVariants";
 
 function Timeline() {
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -15,7 +19,10 @@ function Timeline() {
   });
 
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const smoothLineHeight = useSpring(lineHeight, { stiffness: 80, damping: 25 });
+  const smoothLineHeight = useSpring(lineHeight, {
+    stiffness: 80,
+    damping: 25,
+  });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -29,26 +36,33 @@ function Timeline() {
   const timelineItems = [
     {
       title: "Registration",
+      date: "8th October – 8th November",
       description:
-        "Sign up and form your team. Get access to resources and connect with mentors.",
-      date: "January 15 - February 1",
+        "Form your team and submit your idea.",
     },
     {
-      title: "Hacking Begins",
+      title: "Mentoring",
+      date: "20th November – 20th December",
       description:
-        "48 hours of intense building, learning, and collaboration. Access to APIs, hardware, and expert guidance.",
-      date: "February 2 - February 4",
+        "Connect with mentors from Google Cloud and receive guidance to refine your solution.",
     },
     {
-      title: "Results & Awards",
+      title: "Start Hacking",
+      date: "TBD",
       description:
-        "Present your projects to judges and celebrate with the community. Winners announced and prizes awarded.",
-      date: "February 4, Evening",
+        "Gain access to resources, APIs, and Google Cloud tools to begin building.",
+    },
+    {
+      title: "Event Starts",
+      date: "2 – 4 February",
+      description:
+        "Hacking, keynote sessions, project presentations, prizes, and celebrations.",
     },
   ];
 
   return (
     <div ref={timelineRef} className="relative py-6 sm:py-10">
+      {/* Center line */}
       <div className="absolute left-1/2 top-0 bottom-0 w-[1px] -translate-x-1/2">
         <div className="absolute inset-0 bg-white/15" />
 
@@ -102,7 +116,7 @@ export default function JourneySection() {
   return (
     <motion.section
       id="journey"
-      className="pb-16 sm:pb-20 scroll-mt-20" // removed px-4
+      className="pb-16 sm:pb-20 scroll-mt-20"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -110,7 +124,7 @@ export default function JourneySection() {
     >
       <div className="w-full max-w-[2200px] mx-auto px-2 sm:px-6">
         <SectionFrame
-          title="Event Journey"
+          title="Hackathon Timeline"
           subtitle="Your path from registration to recognition"
           accentColor="blue"
         >

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { SectionFrame } from "@/components/SectionFrame";
-import { fadeInUp, scaleIn, staggerContainer } from "./animationVariants";
+import { fadeInUp, staggerContainer } from "./animationVariants";
 
 export default function AboutHackathonSection() {
   return (
@@ -21,68 +21,62 @@ export default function AboutHackathonSection() {
       >
         <SectionFrame
           title="About the Hackathon"
-          subtitle="48 hours of building, mentorship, and innovation aligned with Saudi Vision 2030"
+          subtitle="A global innovation event shaping the future of AI-driven solutions"
         >
-          <motion.div className="max-w-3xl" variants={fadeInUp}>
+          <motion.div className="max-w-4xl space-y-6" variants={fadeInUp}>
             <p className="text-base sm:text-lg text-white/70 leading-relaxed">
-              Intelligent Planet is a multi-day hackathon bringing innovators
-              together to build AI-powered solutions for real-world challenges
-              aligned with Saudi Vision 2030. Join us for 48 hours of intense
-              collaboration, mentorship from industry experts, and the
-              opportunity to turn your ideas into reality.
+              <span className="font-semibold text-white">
+                Intelligent Planet
+              </span>{" "}
+              is a three-day global innovation event that brings together top
+              student teams, industry leaders, and researchers to shape the
+              future of AI-driven solutions aligned with real-world impact and
+              national priorities.
             </p>
-          </motion.div>
 
-          <motion.div
-            className="mt-10 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-6xl"
-            variants={staggerContainer}
-          >
-            <motion.div
-              className="col-span-2 row-span-2 rounded-2xl overflow-hidden bg-white/5 border border-white/10 h-64 sm:h-80 md:h-96"
-              variants={scaleIn}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-full h-full bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-center text-white/30 text-sm">
-                Hackathon Photo 1
-              </div>
-            </motion.div>
+            <p className="text-base sm:text-lg text-white/70 leading-relaxed">
+              The event culminates in a high-profile main program featuring
+              keynote addresses, expert speaker sessions, live team
+              presentations, and final judging. From a global pool of
+              applicants,{" "}
+              <span className="font-semibold text-white">
+                25 finalist teams
+              </span>{" "}
+              are selected to compete on stage, presenting their solutions to
+              an international panel of judges for{" "}
+              <span className="font-semibold text-white">
+                awards and prizes
+              </span>
+              .
+            </p>
 
-            <motion.div
-              className="col-span-1 rounded-2xl overflow-hidden bg-white/5 border border-white/10 h-32 sm:h-40 md:h-48"
-              variants={scaleIn}
-              custom={1}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-full h-full bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-center text-white/30 text-sm">
-                Photo 2
-              </div>
-            </motion.div>
+            <p className="text-base sm:text-lg text-white/70 leading-relaxed">
+              Held in partnership with Google Cloud, Intelligent Planet
+              emphasizes cutting-edge cloud and AI technologies, practical
+              implementation, and scalable innovation. Beyond the competition,
+              the event serves as a strategic platform for thought leadership
+              and collaboration between academia and industry.
+            </p>
 
-            <motion.div
-              className="col-span-1 rounded-2xl overflow-hidden bg-white/5 border border-white/10 h-32 sm:h-40 md:h-48"
-              variants={scaleIn}
-              custom={2}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-full h-full bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-center text-white/30 text-sm">
-                Photo 3
-              </div>
-            </motion.div>
+            <p className="text-base sm:text-lg text-white/70 leading-relaxed">
+              During the event, the{" "}
+              <span className="font-semibold text-white">
+                College of Computing
+              </span>{" "}
+              will officially announce{" "}
+              <span className="font-semibold text-white">
+                four new academic programs
+              </span>
+              , marking a major milestone for the university and reinforcing
+              its commitment to advancing education.
+            </p>
 
-            <motion.div
-              className="col-span-2 rounded-2xl overflow-hidden bg-white/5 border border-white/10 h-32 sm:h-36 md:h-44"
-              variants={scaleIn}
-              custom={3}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-full h-full bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-center text-white/30 text-sm">
-                Photo 4
-              </div>
-            </motion.div>
+            <p className="text-base sm:text-lg text-white/70 leading-relaxed">
+              Intelligent Planet is not just a competition. It is a global
+              meeting point for ideas, talent, and ambition, designed to
+              spotlight innovation, recognize excellence, and set the
+              direction for what comes next.
+            </p>
           </motion.div>
         </SectionFrame>
       </motion.div>
