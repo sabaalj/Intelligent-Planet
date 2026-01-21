@@ -47,7 +47,7 @@ const SCHEDULE_DATA: ScheduleData = {
       events: [
         {
           time: "8:00 - 11:55",
-          activity: "This is empty because the students are in Building 78 at this time",
+          activity: "-",
         },
         { time: "12:15 - 13:25", activity: "Lunch Break" },
         {
