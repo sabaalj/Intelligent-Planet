@@ -10,7 +10,7 @@ import {
 
 export type RegisteredSession = {
   id: string;
-  building: "Building 57" | "Building 70";
+  building: "Building 57" | "Building 78";
   day: "Day 1" | "Day 2" | "Day 3";
   date: string;
   time: string;
@@ -33,7 +33,9 @@ export function buildSessionId(input: {
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9\-]/g, "");
 
-  return `${clean(input.building)}__${clean(input.day)}__${clean(input.time)}__${clean(input.title)}`;
+  return `${clean(input.building)}__${clean(input.day)}__${clean(
+    input.time
+  )}__${clean(input.title)}`;
 }
 
 export function notifySessionsUpdated() {
@@ -52,6 +54,7 @@ export async function fetchRegisteredSessions(email: string): Promise<Registered
   const userEmail = email.trim().toLowerCase();
   const col = collection(db, "registrations", userEmail, "sessions");
   const snap = await getDocs(col);
+
   const sessions: RegisteredSession[] = [];
   snap.forEach((d) => {
     const data = d.data() as any;
@@ -65,6 +68,7 @@ export async function fetchRegisteredSessions(email: string): Promise<Registered
       speakers: data.speakers || "",
     });
   });
+
   return sessions;
 }
 
@@ -75,14 +79,23 @@ export async function isSessionRegistered(email: string, sessionId: string): Pro
   return snap.exists();
 }
 
-export async function registerSession(email: string, session: RegisteredSession): Promise<void> {
+export async function registerSession(email: string, session: Omit<RegisteredSession, "id">): Promise<string> {
   const userEmail = email.trim().toLowerCase();
-  const ref = doc(db, "registrations", userEmail, "sessions", session.id);
 
-  // setDoc is idempotent with same id; prevents double registration
+  const sessionId = buildSessionId({
+    building: session.building,
+    day: session.day,
+    time: session.time,
+    title: session.title,
+  });
+
+  const ref = doc(db, "registrations", userEmail, "sessions", sessionId);
+
+  // idempotent (لو ضغط مرتين ما يسوي دبل)
   await setDoc(
     ref,
     {
+      id: sessionId,
       ...session,
       email: userEmail,
       registeredAt: serverTimestamp(),
@@ -91,4 +104,5 @@ export async function registerSession(email: string, session: RegisteredSession)
   );
 
   notifySessionsUpdated();
+  return sessionId;
 }

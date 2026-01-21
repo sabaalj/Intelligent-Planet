@@ -4,7 +4,14 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
-import { getCurrentUser } from "@/lib/userSession";
+
+import { getCurrentUser, onUserUpdated } from "@/lib/userSession";
+import {
+  buildSessionId,
+  fetchRegisteredSessions,
+  onSessionsUpdated,
+  registerSession,
+} from "@/lib/sessionRegistration";
 
 type DayKey = "Day 1" | "Day 2" | "Day 3";
 type BuildingKey = "Building 57" | "Building 78";
@@ -79,25 +86,15 @@ const SCHEDULE_DATA: ScheduleData = {
   "Building 78": {
     "Day 1": {
       date: "Feb 2, 2026",
-      events: [
-        { time: "8:00 – 17:00", session: "-", speakers: "-" },
-      ],
+      events: [{ time: "8:00 – 17:00", session: "-", speakers: "-" }],
     },
     "Day 2": {
       date: "Feb 3, 2026",
       events: [
         { time: "8:00 - 8:30", session: "Registration", speakers: "-" },
         { time: "8:30 - 8:40", session: "Welcome remarks", speakers: "Zainab" },
-        {
-          time: "8:40 - 9:00",
-          session: "Opening remarks",
-          speakers: "Dr. Abdullah Sultan",
-        },
-        {
-          time: "9:00 - 9:20",
-          session: "Keynote Presentation 1: Cyber security",
-          speakers: "Aramco (TBD)",
-        },
+        { time: "8:40 - 9:00", session: "Opening remarks", speakers: "Dr. Abdullah Sultan" },
+        { time: "9:00 - 9:20", session: "Keynote Presentation 1: Cyber security", speakers: "Aramco (TBD)" },
         {
           time: "9:25 - 9:45",
           session: "Keynote Presentation 2: AI For Humanity & Planet (AI, HUMAIN)",
@@ -121,11 +118,7 @@ const SCHEDULE_DATA: ScheduleData = {
           speakers: "Speaker: TBD (Backup: Qamar)",
         },
         { time: "12:00 - 13:10", session: "Lunch Break", speakers: "-" },
-        {
-          time: "13:15 - 13:35",
-          session: "Keynote Presentation 5",
-          speakers: "Eid Alharbi (Aramco Digital)",
-        },
+        { time: "13:15 - 13:35", session: "Keynote Presentation 5", speakers: "Eid Alharbi (Aramco Digital)" },
         {
           time: "13:40 - 14:00",
           session: "Keynote Presentation 6: Cybersecurity",
@@ -143,18 +136,12 @@ const SCHEDULE_DATA: ScheduleData = {
           session: "Keynote Presentation 7",
           speakers: "Prof. Fadi J. Kurdahi (University of California, Irvine)",
         },
-        {
-          time: "15:50 - 16:10",
-          session: "Keynote Presentation 8",
-          speakers: "Yervant Zorian (Synopsys)",
-        },
+        { time: "15:50 - 16:10", session: "Keynote Presentation 8", speakers: "Yervant Zorian (Synopsys)" },
       ],
     },
     "Day 3": {
       date: "Feb 4, 2026",
-      events: [
-        { time: "8:00 – 17:00", session: "-", speakers: "-" },
-      ],
+      events: [{ time: "8:00 – 17:00", session: "-", speakers: "-" }],
     },
   },
 };
@@ -229,37 +216,122 @@ function Stat({
   );
 }
 
-export default function Hero({
-  onOpenRegistration,
-}: {
-  onOpenRegistration?: () => void;
-}) {
+export default function Hero({ onOpenRegistration }: { onOpenRegistration?: () => void }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeBuilding, setActiveBuilding] = useState<BuildingKey>("Building 57");
   const [activeDay, setActiveDay] = useState<DayKey>("Day 1");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // ✅ DB-backed state
+  const [registeredIds, setRegisteredIds] = useState<Record<string, boolean>>({});
+  const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
+
   const bgSrc = "/assets/MainBackground.png";
   const globeSrc = "/assets/Globe-Full.png";
 
-  // Check if user is logged in
+  // ✅ Check + LIVE update when user registers/logs in (no refresh needed)
   useEffect(() => {
     const user = getCurrentUser();
     setIsLoggedIn(!!user);
+
+    const unsubscribe = onUserUpdated(() => {
+      const u = getCurrentUser();
+      setIsLoggedIn(!!u);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  // ✅ Load user's registered sessions from Firestore + live refresh
+  useEffect(() => {
+    const user = getCurrentUser();
+    const email = user?.email;
+    if (!email) {
+      setRegisteredIds({});
+      return;
+    }
+
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const sessions = await fetchRegisteredSessions(email);
+        if (cancelled) return;
+
+        const map: Record<string, boolean> = {};
+        sessions.forEach((s) => (map[s.id] = true));
+        setRegisteredIds(map);
+      } catch {
+        // ignore
+      }
+    };
+
+    load();
+    const unsub = onSessionsUpdated(() => load());
+
+    return () => {
+      cancelled = true;
+      unsub();
+    };
+  }, [isLoggedIn]);
 
   // Handle Join Us button click
   const handleJoinUsClick = () => {
     if (isLoggedIn) {
-      // User is logged in - open schedule modal to Building 70, Day 2
       setActiveBuilding("Building 78");
       setActiveDay("Day 2");
       setIsModalOpen(true);
     } else {
-      // User is not logged in - open registration modal
-      if (onOpenRegistration) {
-        onOpenRegistration();
-      }
+      if (onOpenRegistration) onOpenRegistration();
+    }
+  };
+
+  // ✅ Register in Firestore for this session
+  const handleRegister = async (event: MainEventEvent) => {
+    const user = getCurrentUser();
+    const email = user?.email?.trim();
+
+    if (!email) {
+      if (onOpenRegistration) onOpenRegistration();
+      return;
+    }
+
+    const building: "Building 78" = "Building 78";
+    const day = activeDay;
+    const date = SCHEDULE_DATA["Building 78"][activeDay].date;
+
+    const sessionId = buildSessionId({
+      building,
+      day,
+      time: event.time,
+      title: event.session,
+    });
+
+    if (registeredIds[sessionId] || pendingIds[sessionId]) return;
+
+    setPendingIds((p) => ({ ...p, [sessionId]: true }));
+
+    try {
+      // optimistic UI
+      setRegisteredIds((r) => ({ ...r, [sessionId]: true }));
+
+      await registerSession(email, {
+        building,
+        day,
+        date,
+        time: event.time,
+        title: event.session,
+        speakers: event.speakers || "",
+      });
+    } catch {
+      // rollback if failed
+      setRegisteredIds((r) => {
+        const copy = { ...r };
+        delete copy[sessionId];
+        return copy;
+      });
+    } finally {
+      setPendingIds((p) => ({ ...p, [sessionId]: false }));
     }
   };
 
@@ -267,49 +339,22 @@ export default function Hero({
     <>
       <section id="hero" className="relative min-h-screen flex flex-col pt-16 pb-12">
         <div className="absolute inset-0 z-0">
-          <Image
-            src={bgSrc}
-            alt="Intelligent Planet Background"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-50"
-          />
+          <Image src={bgSrc} alt="Intelligent Planet Background" fill priority sizes="100vw" className="object-cover opacity-50" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black" />
         </div>
 
         <motion.div
           initial={{ opacity: 0.5, y: -20 }}
-          animate={{
-            opacity: [0.5, 0.4, 0.4, 0.5, 0.5],
-            y: [-20, 20, 20, -20, -20],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            times: [0, 0.4, 0.5, 0.9, 1],
-            ease: "easeInOut",
-          }}
+          animate={{ opacity: [0.5, 0.4, 0.4, 0.5, 0.5], y: [-20, 20, 20, -20, -20] }}
+          transition={{ duration: 8, repeat: Infinity, times: [0, 0.4, 0.5, 0.9, 1], ease: "easeInOut" }}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[900px] aspect-square z-[5] mix-blend-screen pointer-events-none"
         >
-          <Image
-            src={globeSrc}
-            alt="Digital Globe"
-            fill
-            priority
-            sizes="(max-width: 900px) 100vw, 900px"
-            className="object-contain"
-          />
+          <Image src={globeSrc} alt="Digital Globe" fill priority sizes="(max-width: 900px) 100vw, 900px" className="object-contain" />
         </motion.div>
 
         <div className="container mx-auto px-6 relative z-10 text-center flex flex-col flex-1 justify-center py-8">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="max-w-6xl mx-auto w-full"
-          >
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-6xl mx-auto w-full">
             <motion.div variants={fadeIn} className="mb-4 flex justify-center">
               <span
                 className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sm font-medium uppercase tracking-widest"
@@ -319,51 +364,31 @@ export default function Hero({
               </span>
             </motion.div>
 
-            <motion.h1
-              variants={fadeIn}
-              className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tighter mb-4 leading-none whitespace-nowrap"
-            >
+            <motion.h1 variants={fadeIn} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tighter mb-4 leading-none whitespace-nowrap">
               <span
                 className="text-transparent bg-clip-text uppercase"
-                style={{
-                  backgroundImage: `linear-gradient(to bottom, #ffffff, #ffffff, ${PRIMARY})`,
-                }}
+                style={{ backgroundImage: `linear-gradient(to bottom, #ffffff, #ffffff, ${PRIMARY})` }}
               >
                 INTELLIGENT
               </span>{" "}
               <span
                 className="text-transparent bg-clip-text uppercase"
-                style={{
-                  backgroundImage: `linear-gradient(to bottom, #ffffff, #ffffff, ${PRIMARY})`,
-                }}
+                style={{ backgroundImage: `linear-gradient(to bottom, #ffffff, #ffffff, ${PRIMARY})` }}
               >
                 PLANET
               </span>
             </motion.h1>
 
             <motion.div variants={fadeIn} className="mb-6 flex justify-center">
-              <Image
-                src="/assets/GCloudKFUPM.png"
-                alt="Google Cloud x KFUPM"
-                width={700}
-                height={175}
-                className="object-contain"
-              />
+              <Image src="/assets/GCloudKFUPM.png" alt="Google Cloud x KFUPM" width={700} height={175} className="object-contain" />
             </motion.div>
 
-            <motion.p
-              variants={fadeIn}
-              className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-8 font-light italic"
-            >
+            <motion.p variants={fadeIn} className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-8 font-light italic">
               "AI Solutions for an Intelligent Planet"
             </motion.p>
 
-            <motion.p
-              variants={fadeIn}
-              className="text-base text-white/70 max-w-3xl mx-auto mb-8 font-light leading-relaxed"
-            >
-              KFUPM in partnership with Google Cloud brings together top innovators from the world's leading
-              universities to solve challenges aligned with Saudi Vision 2030.
+            <motion.p variants={fadeIn} className="text-base text-white/70 max-w-3xl mx-auto mb-8 font-light leading-relaxed">
+              KFUPM in partnership with Google Cloud brings together top innovators from the world's leading universities to solve challenges aligned with Saudi Vision 2030.
             </motion.p>
 
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -387,7 +412,6 @@ export default function Hero({
             </motion.div>
           </motion.div>
 
-          {/* Stats section */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -406,13 +430,7 @@ export default function Hero({
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
-            />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
 
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -422,10 +440,7 @@ export default function Hero({
             >
               <div className="h-[60px] border-b border-white/10 flex items-center justify-center bg-black relative z-30">
                 <h2 className="text-xl font-heading font-bold uppercase tracking-tight">Event Schedule</h2>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors absolute right-4"
-                >
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors absolute right-4">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -497,15 +512,10 @@ export default function Hero({
 
                   {/* Active day label */}
                   <div className="py-4 text-center shrink-0">
-                    <span
-                      className="font-heading font-bold text-lg uppercase tracking-[0.3em]"
-                      style={{ color: PRIMARY }}
-                    >
+                    <span className="font-heading font-bold text-lg uppercase tracking-[0.3em]" style={{ color: PRIMARY }}>
                       {activeDay}
                     </span>
-                    <p className="text-white text-sm mt-1">
-                      {SCHEDULE_DATA[activeBuilding][activeDay].date}
-                    </p>
+                    <p className="text-white text-sm mt-1">{SCHEDULE_DATA[activeBuilding][activeDay].date}</p>
                   </div>
 
                   <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-8 custom-scrollbar">
@@ -514,18 +524,12 @@ export default function Hero({
                         <table className="w-full text-center border-separate border-spacing-y-2">
                           <thead>
                             <tr className="text-[10px] uppercase tracking-[0.2em] text-white/60">
-                              <th
-                                className="px-4 py-3 font-bold bg-white text-black rounded-tl-lg text-center border-b-2"
-                                style={{ borderBottomColor: `${PRIMARY}33` }}
-                              >
+                              <th className="px-4 py-3 font-bold bg-white text-black rounded-tl-lg text-center border-b-2" style={{ borderBottomColor: `${PRIMARY}33` }}>
                                 <div className="flex items-center justify-center gap-2">
                                   <Clock className="w-3 h-3" /> Time
                                 </div>
                               </th>
-                              <th
-                                className="px-4 py-3 font-bold bg-white text-black rounded-tr-lg text-center border-b-2"
-                                style={{ borderBottomColor: `${PRIMARY}33` }}
-                              >
+                              <th className="px-4 py-3 font-bold bg-white text-black rounded-tr-lg text-center border-b-2" style={{ borderBottomColor: `${PRIMARY}33` }}>
                                 Hackathon Activity
                               </th>
                             </tr>
@@ -544,47 +548,77 @@ export default function Hero({
                           </tbody>
                         </table>
                       ) : (
+                        // ✅ Main Event table + Register column (DB-backed)
                         <table className="w-full text-center border-separate border-spacing-y-2">
                           <thead>
                             <tr className="text-[10px] uppercase tracking-[0.2em] text-white/60">
-                              <th
-                                className="px-4 py-3 font-bold bg-white text-black rounded-tl-lg text-center border-b-2"
-                                style={{ borderBottomColor: `${PRIMARY}33` }}
-                              >
+                              <th className="px-4 py-3 font-bold bg-white text-black rounded-tl-lg text-center border-b-2" style={{ borderBottomColor: `${PRIMARY}33` }}>
                                 <div className="flex items-center justify-center gap-2">
                                   <Clock className="w-3 h-3" /> Time
                                 </div>
                               </th>
-                              <th
-                                className="px-4 py-3 font-bold bg-white text-black text-center border-b-2"
-                                style={{ borderBottomColor: `${PRIMARY}33` }}
-                              >
+
+                              <th className="px-4 py-3 font-bold bg-white text-black text-center border-b-2" style={{ borderBottomColor: `${PRIMARY}33` }}>
                                 Conference Session
                               </th>
-                              <th
-                                className="px-4 py-3 font-bold bg-white text-black rounded-tr-lg text-center border-b-2"
-                                style={{ borderBottomColor: `${PRIMARY}33` }}
-                              >
+
+                              <th className="px-4 py-3 font-bold bg-white text-black text-center border-b-2" style={{ borderBottomColor: `${PRIMARY}33` }}>
                                 <div className="flex items-center justify-center gap-2">
                                   <User className="w-3 h-3" /> Speaker(s)
                                 </div>
                               </th>
+
+                              <th className="px-4 py-3 font-bold bg-white text-black rounded-tr-lg text-center border-b-2" style={{ borderBottomColor: `${PRIMARY}33` }}>
+                                Register
+                              </th>
                             </tr>
                           </thead>
+
                           <tbody>
-                            {SCHEDULE_DATA["Building 78"][activeDay].events.map((event, idx) => (
-                              <tr key={idx} className="group">
-                                <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm font-mono font-bold text-center rounded-l-lg group-hover:bg-white/20 transition-colors">
-                                  {event.time}
-                                </td>
-                                <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm text-center group-hover:bg-white/20 transition-colors">
-                                  {event.session}
-                                </td>
-                                <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm italic text-center rounded-r-lg group-hover:bg-white/20 transition-colors">
-                                  {event.speakers}
-                                </td>
-                              </tr>
-                            ))}
+                            {SCHEDULE_DATA["Building 78"][activeDay].events.map((event, idx) => {
+                              const sessionId = buildSessionId({
+                                building: "Building 78",
+                                day: activeDay,
+                                time: event.time,
+                                title: event.session,
+                              });
+
+                              const isRegistered = !!registeredIds[sessionId];
+                              const isPending = !!pendingIds[sessionId];
+
+                              return (
+                                <tr key={idx} className="group">
+                                  <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm font-mono font-bold text-center rounded-l-lg group-hover:bg-white/20 transition-colors">
+                                    {event.time}
+                                  </td>
+
+                                  <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm text-center group-hover:bg-white/20 transition-colors">
+                                    {event.session}
+                                  </td>
+
+                                  <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm italic text-center group-hover:bg-white/20 transition-colors">
+                                    {event.speakers}
+                                  </td>
+
+                                  <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm text-center rounded-r-lg group-hover:bg-white/20 transition-colors">
+                                    <button
+                                      disabled={isPending || isRegistered}
+                                      onClick={() => handleRegister(event)}
+                                      className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all border"
+                                      style={{
+                                        backgroundColor: isRegistered ? "rgba(34,197,94,0.85)" : PRIMARY,
+                                        borderColor: isRegistered ? "rgba(34,197,94,0.35)" : "rgba(255,255,255,0.15)",
+                                        color: "#fff",
+                                        opacity: isPending ? 0.7 : 1,
+                                        cursor: isPending || isRegistered ? "not-allowed" : "pointer",
+                                      }}
+                                    >
+                                      {isRegistered ? "Registered" : isPending ? "Registering..." : "Register"}
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       )}
@@ -594,9 +628,7 @@ export default function Hero({
               </div>
 
               <div className="p-4 bg-black text-center border-t border-white/5 relative z-30">
-                <p className="text-[10px] text-white uppercase tracking-widest">
-                  Location: Saudi - Dhahran - KFUPM {activeBuilding}
-                </p>
+                <p className="text-[10px] text-white uppercase tracking-widest">Location: Saudi - Dhahran - KFUPM {activeBuilding}</p>
               </div>
             </motion.div>
           </div>

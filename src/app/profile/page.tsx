@@ -9,7 +9,7 @@ import {
   type UserProfile,
   getInitials,
 } from "@/lib/userSession";
-import { ArrowRight, CalendarDays, User2 } from "lucide-react";
+import { ArrowRight, CalendarDays, User2, ArrowLeft } from "lucide-react";
 import {
   fetchRegisteredSessions,
   onSessionsUpdated,
@@ -57,10 +57,10 @@ export default function ProfilePage() {
         if (!alive) return;
 
         const dayOrder = { "Day 1": 1, "Day 2": 2, "Day 3": 3 } as const;
-        const buildingOrder = { "Building 57": 57, "Building 70": 70 } as const;
+        const buildingOrder = { "Building 57": 57, "Building 70": 70, "Building 78": 78 } as const;
 
         const sorted = [...data].sort((a, b) => {
-          const bo = buildingOrder[a.building] - buildingOrder[b.building];
+          const bo = (buildingOrder[a.building as keyof typeof buildingOrder] ?? 999) - (buildingOrder[b.building as keyof typeof buildingOrder] ?? 999);
           if (bo !== 0) return bo;
           const dox = dayOrder[a.day] - dayOrder[b.day];
           if (dox !== 0) return dox;
@@ -120,38 +120,37 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* Back to Home Button - Top Left */}
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          animate="visible"
+        >
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-blue-300 hover:text-blue-200 transition-colors mb-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </motion.div>
+
         {/* Header */}
         <motion.div
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          className="flex items-start justify-between gap-6"
         >
-          <div>
-            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
-              <div className="w-2 h-2 bg-[#4da3ff] rounded-full animate-pulse" />
-              <span className="text-xs uppercase tracking-[0.25em] text-white/70 font-semibold">
-                Profile
-              </span>
-            </div>
-
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-              My{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4da3ff] to-[#005287]">
-                Profile
-              </span>
-            </h1>
-            <p className="text-white/60 mt-3">
-              Hello, <span className="text-white/90 font-semibold">{firstName}</span> — your registration info.
-            </p>
+          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
+            <div className="w-2 h-2 bg-[#4da3ff] rounded-full animate-pulse" />
+            <span className="text-xs uppercase tracking-[0.25em] text-white/70 font-semibold">
+              Profile
+            </span>
           </div>
 
-          <Link
-            className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-            href="/"
-          >
-            Back to Home
-          </Link>
+          <p className="text-white/60 mt-3 text-lg">
+            Hello, <span className="text-white/90 font-semibold">{firstName}</span> — your registration info.
+          </p>
         </motion.div>
 
         {/* Info Card */}
@@ -189,10 +188,6 @@ export default function ProfilePage() {
             <Info label="Organization" value={user.organization} />
             <Info label="Role / Title" value={role || ""} />
             <Info label="Nationality" value={user.nationality} />
-            <Info
-              label="How you heard about the event"
-              value={user.hearAbout || "Not specified"}
-            />
           </div>
         </motion.div>
 
@@ -224,7 +219,7 @@ export default function ProfilePage() {
           {sessions.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
               <div className="text-lg font-semibold text-white mb-2">
-                You haven’t registered for any sessions yet.
+                You haven't registered for any sessions yet.
               </div>
               <div className="text-white/60 mb-6">
                 Browse the speakers and register for sessions you want to attend.
@@ -283,5 +278,3 @@ function Info({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-// push verification
-
