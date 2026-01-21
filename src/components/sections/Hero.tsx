@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
+import { getCurrentUser } from "@/lib/userSession";
 
 type DayKey = "Day 1" | "Day 2" | "Day 3";
 type BuildingKey = "Building 57" | "Building 78";
@@ -131,7 +132,7 @@ const SCHEDULE_DATA: ScheduleData = {
           speakers: "Dr. Jacques Klein (University of Luxembourg)",
         },
         {
-          time: "14:05 – 15:05 PM",
+          time: "14:05 – 15:05",
           session: "Panel 2: Semiconductors & Cyber-Physical Systems",
           speakers:
             "Moderator: Khaled Al-Hawaj; Panelists: Abdullah Alshehri (SEMC); Dr. Salman Al-Fuhaid (KACST); Prof. Minghui Zhou (Peking University); Dr. Jacques Klein (University of Luxembourg)",
@@ -228,13 +229,39 @@ function Stat({
   );
 }
 
-export default function Hero() {
+export default function Hero({
+  onOpenRegistration,
+}: {
+  onOpenRegistration?: () => void;
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeBuilding, setActiveBuilding] = useState<BuildingKey>("Building 57");
   const [activeDay, setActiveDay] = useState<DayKey>("Day 1");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const bgSrc = "/assets/MainBackground.png";
   const globeSrc = "/assets/Globe-Full.png";
+
+  // Check if user is logged in
+  useEffect(() => {
+    const user = getCurrentUser();
+    setIsLoggedIn(!!user);
+  }, []);
+
+  // Handle Join Us button click
+  const handleJoinUsClick = () => {
+    if (isLoggedIn) {
+      // User is logged in - open schedule modal to Building 70, Day 2
+      setActiveBuilding("Building 78");
+      setActiveDay("Day 2");
+      setIsModalOpen(true);
+    } else {
+      // User is not logged in - open registration modal
+      if (onOpenRegistration) {
+        onOpenRegistration();
+      }
+    }
+  };
 
   return (
     <>
@@ -341,12 +368,13 @@ export default function Hero() {
 
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
+                onClick={handleJoinUsClick}
                 className="w-full sm:w-auto px-8 py-4 text-white rounded font-medium transition-all flex items-center justify-center gap-2 group box-glow"
                 style={{ backgroundColor: PRIMARY }}
                 onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.95)")}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
               >
-                Join Us
+                {isLoggedIn ? "Register Now" : "Join Us"}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
