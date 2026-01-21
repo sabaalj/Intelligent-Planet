@@ -126,7 +126,7 @@ export default function SpeakersSection() {
 
       <div className="w-full max-w-[2200px] mx-auto px-2 sm:px-6 relative z-10">
         <SectionFrame
-          title="Keynote Speakers"
+          title="Speakers"
           subtitle="Hear from the visionaries shaping the future of technology."
           accentColor="blue"
         >

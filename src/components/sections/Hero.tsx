@@ -6,10 +6,10 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronRight, X, Clock, User, Globe, Mic, Trophy, Users } from "lucide-react";
 
 type DayKey = "Day 1" | "Day 2" | "Day 3";
-type BuildingKey = "Building 57" | "Building 70";
+type BuildingKey = "Building 57" | "Building 78";
 
-type Building57Event = { time: string; activity: string };
-type Building70Event = { time: string; session: string; speakers: string };
+type HackathonEvent = { time: string; activity: string };
+type MainEventEvent = { time: string; session: string; speakers: string };
 
 type ScheduleDay<TEvent> = {
   date: string;
@@ -17,73 +17,142 @@ type ScheduleDay<TEvent> = {
 };
 
 type ScheduleData = {
-  "Building 57": Record<DayKey, ScheduleDay<Building57Event>>;
-  "Building 70": Record<DayKey, ScheduleDay<Building70Event>>;
+  "Building 57": Record<DayKey, ScheduleDay<HackathonEvent>>;
+  "Building 78": Record<DayKey, ScheduleDay<MainEventEvent>>;
 };
 
 const PRIMARY = "#005287";
+
+const BUILDING_LABELS: Record<BuildingKey, string> = {
+  "Building 57": "Hackathon",
+  "Building 78": "Main Event",
+};
 
 const SCHEDULE_DATA: ScheduleData = {
   "Building 57": {
     "Day 1": {
       date: "Feb 2, 2026",
       events: [
-        { time: "04:30 PM", activity: "Registration" },
-        { time: "05:30 PM", activity: "Opening Ceremony by College of Computing" },
-        { time: "06:30 PM", activity: "Technical Workshop by Google Cloud" },
+        { time: "8:00 - 8:30", activity: "Registration" },
+        { time: "8:30 - 8:40", activity: "Welcome remarks – TBD" },
+        { time: "8:40 - 9:00", activity: "Opening remarks – Dr. Abdullah Sultan" },
+        { time: "9:00 - 11:55", activity: "Hackathon starts" },
+        { time: "12:00 - 13:10", activity: "Lunch Break" },
+        { time: "13:15 - 16:00", activity: "Hackathon - Continued" },
       ],
     },
     "Day 2": {
       date: "Feb 3, 2026",
       events: [
-        { time: "09:30 AM", activity: "Breakfast" },
-        { time: "11:00 AM", activity: "Hackathon Starts" },
-        { time: "01:30 PM", activity: "Hackathon - Coding Phase" },
-        { time: "03:00 PM", activity: "Hackathon - Continued" },
+        {
+          time: "8:00 - 11:55",
+          activity: "This is empty because the students are in Building 78 at this time",
+        },
+        { time: "12:15 - 13:25", activity: "Lunch Break" },
+        {
+          time: "13:30 - 14:30",
+          activity:
+            "Google Cloud - Cognitive Design: Building next Generation of Solutions – Nizar Altoraif and Jithin S L",
+        },
+        { time: "14:30 - 16:00", activity: "Hackathon - Continued" },
+        { time: "16:00", activity: "Project Submission Deadline" },
       ],
     },
     "Day 3": {
       date: "Feb 4, 2026",
       events: [
-        { time: "09:30 AM", activity: "Breakfast" },
-        { time: "10:30 AM", activity: "Presentations" },
-        { time: "01:30 PM", activity: "Presentations" },
-        { time: "04:00 PM", activity: "Break" },
+        { time: "9:00-9:30AM", activity: "Registration & Breakfast" },
+        { time: "9:30-10:00", activity: "Welcoming Remarks – Zainab Al-Turaiki" },
+        { time: "10:00-10:55", activity: "Presentations x 6 Teams" },
+        { time: "10:55-11:05", activity: "Break" },
+        { time: "11:05-12:00", activity: "Presentations x 6 Teams" },
+        { time: "12:00-13:00", activity: "Lunch Break" },
+        { time: "13:00-13:55", activity: "Presentations x 6 Teams" },
+        { time: "13:55-14:05", activity: "Break" },
+        { time: "14:05-15:00", activity: "Presentations x 6 Teams" },
+        { time: "15:00-15:20", activity: "Judging Evaluation" },
+        { time: "15:20-16:00", activity: "Awards & Closing Ceremony" },
       ],
     },
   },
-  "Building 70": {
+  "Building 78": {
     "Day 1": {
       date: "Feb 2, 2026",
       events: [
-        { time: "05:00 PM", session: "Welcoming & Coffee", speakers: "-" },
-        { time: "06:00 PM", session: "Prayer Break", speakers: "-" },
-        { time: "06:30 PM", session: "Dinner with delegates", speakers: "-" },
+        { time: "8:00 – 17:00", session: "-", speakers: "-" },
       ],
     },
     "Day 2": {
       date: "Feb 3, 2026",
       events: [
-        { time: "09:30 AM", session: "Registration & Breakfast", speakers: "-" },
-        { time: "10:00 AM", session: "Welcoming Remarks", speakers: "Dr. Ahmed Al-Khalidi" },
-        { time: "10:30 AM", session: "Keynote 1: AI For Humanity & Planet", speakers: "Dr. Sarah Johnson" },
-        { time: "11:00 AM", session: "Panel 1: Sustainable AI for the Planet", speakers: "Prof. Michael Chen, Dr. Lisa Wang" },
-        { time: "12:00 PM", session: "Lunch Break", speakers: "-" },
-        { time: "01:30 PM", session: "Google's Session: Design Thinking Workshop", speakers: "Google Cloud Team" },
-        { time: "02:30 PM", session: "Keynote 2: Safe AI on a Global Scale", speakers: "Dr. James Wilson" },
-        { time: "03:00 PM", session: "Panel 2: Education for Digital Industry", speakers: "Dr. Elena Rossi, Dr. Kevin Smith" },
-        { time: "04:00 PM", session: "Keynote 3: Intelligent systems for World connection", speakers: "Dr. Maria Garcia" },
+        { time: "8:00 - 8:30", session: "Registration", speakers: "-" },
+        { time: "8:30 - 8:40", session: "Welcome remarks", speakers: "Zainab" },
+        {
+          time: "8:40 - 9:00",
+          session: "Opening remarks",
+          speakers: "Dr. Abdullah Sultan",
+        },
+        {
+          time: "9:00 - 9:20",
+          session: "Keynote Presentation 1: Cyber security",
+          speakers: "Aramco (TBD)",
+        },
+        {
+          time: "9:25 - 9:45",
+          session: "Keynote Presentation 2: AI For Humanity & Planet (AI, HUMAIN)",
+          speakers: "Dr. Abdulmotaleb Elsaddik",
+        },
+        {
+          time: "9:50 - 10:50",
+          session: "Panel 1: AI, Gaming & Innovation",
+          speakers:
+            "Moderator: Dr. Alaa Khamis; Panelists: Dr. Abdulmotaleb Elsaddik (Humain); Rami Hilal Busbait (SAVVY); Abdullah Aldhallan (MCIT); Dr. Ruslan Mitkov (Lancaster University)",
+        },
+        { time: "10:50 - 11:00", session: "Coffee Break", speakers: "-" },
+        {
+          time: "11:05 - 11:25",
+          session: "Keynote Presentation 3: AI and NLP/Computational Linguistics",
+          speakers: "Dr. Ruslan Mitkov (Lancaster University)",
+        },
+        {
+          time: "11:30 - 11:55",
+          session: "Keynote Presentation 4: Data science",
+          speakers: "Speaker: TBD (Backup: Qamar)",
+        },
+        { time: "12:00 - 13:10", session: "Lunch Break", speakers: "-" },
+        {
+          time: "13:15 - 13:35",
+          session: "Keynote Presentation 5",
+          speakers: "Eid Alharbi (Aramco Digital)",
+        },
+        {
+          time: "13:40 - 14:00",
+          session: "Keynote Presentation 6: Cybersecurity",
+          speakers: "Dr. Jacques Klein (University of Luxembourg)",
+        },
+        {
+          time: "14:05 – 15:05 PM",
+          session: "Panel 2: Semiconductors & Cyber-Physical Systems",
+          speakers:
+            "Moderator: Khaled Al-Hawaj; Panelists: Abdullah Alshehri (SEMC); Dr. Salman Al-Fuhaid (KACST); Prof. Minghui Zhou (Peking University); Dr. Jacques Klein (University of Luxembourg)",
+        },
+        { time: "15:05 - 15:25", session: "Coffee Break", speakers: "-" },
+        {
+          time: "15:25 - 15:45",
+          session: "Keynote Presentation 7",
+          speakers: "Prof. Fadi J. Kurdahi (University of California, Irvine)",
+        },
+        {
+          time: "15:50 - 16:10",
+          session: "Keynote Presentation 8",
+          speakers: "Yervant Zorian (Synopsys)",
+        },
       ],
     },
     "Day 3": {
       date: "Feb 4, 2026",
       events: [
-        { time: "09:30 AM", session: "Registration & Breakfast", speakers: "-" },
-        { time: "10:30 AM", session: "Judging Starts", speakers: "Panel of Judges" },
-        { time: "12:00 PM", session: "Lunch Break", speakers: "-" },
-        { time: "01:30 PM", session: "Judging Resumes", speakers: "Panel of Judges" },
-        { time: "04:00 PM", session: "Judging Finishes", speakers: "-" },
-        { time: "05:00 PM", session: "Awards & Closing Ceremony", speakers: "VIP Guests" },
+        { time: "8:00 – 17:00", session: "-", speakers: "-" },
       ],
     },
   },
@@ -290,7 +359,7 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* Stats section with proper spacing */}
+          {/* Stats section */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -343,7 +412,7 @@ export default function Hero() {
                   {/* Building selector */}
                   <div className="flex justify-center p-4 bg-transparent shrink-0">
                     <div className="flex w-[70%] gap-2 bg-white/5 backdrop-blur-md border border-white/10 p-1.5 rounded-xl">
-                      {(["Building 57", "Building 70"] as const).map((b) => {
+                      {(["Building 57", "Building 78"] as const).map((b) => {
                         const selected = activeBuilding === b;
                         return (
                           <button
@@ -362,7 +431,7 @@ export default function Hero() {
                               if (!selected) e.currentTarget.style.borderColor = "transparent";
                             }}
                           >
-                            {b}
+                            {BUILDING_LABELS[b]}
                           </button>
                         );
                       })}
@@ -406,7 +475,9 @@ export default function Hero() {
                     >
                       {activeDay}
                     </span>
-                    <p className="text-white text-sm mt-1">{SCHEDULE_DATA[activeBuilding][activeDay].date}</p>
+                    <p className="text-white text-sm mt-1">
+                      {SCHEDULE_DATA[activeBuilding][activeDay].date}
+                    </p>
                   </div>
 
                   <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-8 custom-scrollbar">
@@ -473,7 +544,7 @@ export default function Hero() {
                             </tr>
                           </thead>
                           <tbody>
-                            {SCHEDULE_DATA["Building 70"][activeDay].events.map((event, idx) => (
+                            {SCHEDULE_DATA["Building 78"][activeDay].events.map((event, idx) => (
                               <tr key={idx} className="group">
                                 <td className="px-4 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/10 text-sm font-mono font-bold text-center rounded-l-lg group-hover:bg-white/20 transition-colors">
                                   {event.time}
