@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
-import { Users } from "lucide-react";
+import Image from "next/image";
 import { SectionFrame } from "@/components/SectionFrame";
 
 type Judge = {
   name: string;
   role: string;
+  imageSrc: string;
 };
 
 function InfiniteScrollMarquee({
@@ -81,8 +82,6 @@ function InfiniteScrollMarquee({
       className="relative overflow-hidden py-2"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
     >
       <motion.div className="flex gap-6 w-max" style={{ x }}>
         <div ref={singleSetRef} className="flex gap-6 w-max">
@@ -92,7 +91,6 @@ function InfiniteScrollMarquee({
             </div>
           ))}
         </div>
-
         {tripled.slice(children.length).map((child, idx) => (
           <div key={`dup-${idx}`} className="flex-shrink-0">
             {child}
@@ -106,16 +104,91 @@ function InfiniteScrollMarquee({
 export default function Judges() {
   const judges: Judge[] = useMemo(
     () => [
-      { name: "Prof. Jacques Klein", role: "CTO, TechCorp" },
-      { name: "Prof. Ruslan Mitkov", role: "Design Lead, CreativeX" },
-      { name: "Dr. Fawaz Alazmi", role: "Founder, StartupOne" },
-      { name: "Prof. Fadi J. Kurdahi", role: "VP Engineering, BigData" },
-      { name: "Dr. Naveed Sherwani", role: "AI Lead, FutureTech" },
-      { name: "Mr. Rami Busbait", role: "Product Director, InnovateCo" },
-      { name: "Assoc. Prof. Mohammed Alshekly", role: "Head of Innovation, Nexa" },
-      { name: "Dr. Mohammed Alharbi", role: "Head of Innovation, Nexa" },
-      { name: "Prof. Abdullah Abdulmotaleb", role: "Head of Innovation, Nexa" },
-      { name: "Dr. Yervant Zorian", role: "Head of Innovation, Nexa" },
+      {
+        name: "Dr. Ruslan Mitkov",
+        role: "AI and NLP/Computational Linguistics, Lancaster University — Speaker (AI)",
+        imageSrc: "/assets/rus_mik.jpg",
+      },
+      {
+        name: "Dr. Jacques Klein",
+        role: "AI and Software Engineering, University of Luxembourg — Speaker (Cyber Security)",
+        imageSrc: "/assets/jac_kle.png",
+      },
+      {
+        name: "Dr. Naveed Sherwani",
+        role: "CEO, Epic Semi — Panelist (Semiconductor)",
+        imageSrc: "/assets/nav_sher.jpg",
+      },
+      {
+        name: "Dr. Mohammed Alshekhly",
+        role: "Chair of University Research Council, Gulf University (GU) — Judge",
+        imageSrc: "/assets/moh_n.jpg",
+      },
+      {
+        name: "Dr. Fawaz Alazmi",
+        role: "Chairman, Computer Science Department, Kuwait University (KU) — Judge",
+        imageSrc: "/assets/faw_azmi.jpeg",
+      },
+      {
+        name: "Abdullah Alshehri",
+        role: "Business Development Unit Manager, SEMC — Panelist (Semiconductor)",
+        imageSrc: "/assets/ab_alsh.png",
+      },
+      {
+        name: "Prof. Minghui Zhou",
+        role: "Vice Dean responsible for globalization, Peking University — Panelist (Cyber Security)",
+        imageSrc: "/assets/min_zhou.png",
+      },
+      {
+        name: "Prof. Fadi J. Kurdahi",
+        role: "Professor, University of California, Irvine — Speaker (Semiconductor)",
+        imageSrc: "/assets/fadi_kurdahi.png",
+      },
+      {
+        name: "Yervant Zorian",
+        role: "VP and Chief Architect, Synopsys — Speaker (Semiconductor)",
+        imageSrc: "/assets/zorian_yervant.jpg",
+      },
+      {
+        name: "Rami Hilal Busbait",
+        role: "Head of Talent Management, SAVVY — Panelist (Gaming)",
+        imageSrc: "/assets/rami.png",
+      },
+      {
+        name: "Dr. Abdulmotaleb Elsaddik",
+        role: "Head of Discovery and Innovation, HUMAIN — Speaker (AI/Data)",
+        imageSrc: "/assets/abdulmotaleb.jpg",
+      },
+      {
+        name: "Abdullah Aldhallan",
+        role: "GM of Future Skills, MCIT — Panelist (AI)",
+        imageSrc: "/assets/aldhalaan.png",
+      },
+      {
+        name: "Dr. Salman Al-Fuhaid",
+        role: "KACST — Panelist (Semiconductor)",
+        imageSrc: "/assets/salman.png",
+      },
+      {
+        name: "Haitham Saad Allahyani",
+        role: "GADD — Panelist (Cyber Security)",
+        imageSrc: "/assets/haitham.png",
+      },
+      {
+        name: "Eid Alharbi",
+        role: "President of Connectivity, Aramco Digital — Panelist (Cyber Security/AI)",
+        imageSrc: "/assets/eid.jpg",
+      },
+      {
+        name: "Dr. Mustafa I. Jarrar",
+        role: "Professor, HBKU — Panelist (AI/Data)",
+        imageSrc: "/assets/mustafa.png",
+      },
+      {
+        name: "Dr. Fahad Almsned",
+        role: "IRB Chair, Eastern Health Cluster — Panelist (Data/AI)",
+        imageSrc: "/assets/fahad.jpg",
+      },
     ],
     []
   );
@@ -141,19 +214,20 @@ export default function Judges() {
                   transition={{ delay: i * 0.08 }}
                   className="group relative w-72 sm:w-80 flex-shrink-0"
                 >
-                  <div className="aspect-[4/5] bg-neutral-900 rounded-lg overflow-hidden relative mb-4 border border-white/5">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,82,135,0.4)_0%,transparent_30%),radial-gradient(circle_at_bottom_right,rgba(0,82,135,0.4)_0%,transparent_30%),linear-gradient(to_top,rgba(0,82,135,0.2)_0%,transparent_40%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
-                    <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-neutral-700 group-hover:scale-110 transition-transform duration-500">
-                      <Users className="w-16 h-16 opacity-10" />
-                    </div>
+                  <div className="aspect-[4/5] rounded-lg overflow-hidden relative mb-4 border border-white/10">
+                    <Image
+                      src={judge.imageSrc}
+                      alt={judge.name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+
+                    {/* Center-expanding line */}
+                    <div className="absolute inset-x-0 bottom-0 h-[4px] bg-[#005287] scale-x-0 origin-center transition-transform duration-300 group-hover:scale-x-100" />
                   </div>
 
-                  <h3 className="text-xl font-bold uppercase tracking-tight">
-                    {judge.name}
-                  </h3>
-                  <p className="text-sm text-[#005287] font-bold uppercase tracking-wider">
-                    {judge.role}
-                  </p>
+                  <h3 className="text-xl font-bold uppercase tracking-tight">{judge.name}</h3>
+                  <p className="text-sm text-[#005287] font-bold uppercase tracking-wider">{judge.role}</p>
                 </motion.div>
               ))}
             </InfiniteScrollMarquee>

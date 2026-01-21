@@ -37,10 +37,7 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
 
   const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Collapse nav items into hamburger when cramped
   const [useHamburger, setUseHamburger] = useState(false);
-
-  // NEW: not sticky initially; becomes a floating layer after scrolling past it
   const [isSticky, setIsSticky] = useState(false);
 
   const navRef = useRef<HTMLElement | null>(null);
@@ -57,7 +54,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     return user.fullName.trim().split(/\s+/)[0] || "";
   }, [user]);
 
-  // Active section + scrolled styling
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -78,7 +74,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Hamburger threshold (tweak if you want it to collapse later/earlier)
   const updateUseHamburger = useCallback(() => {
     const shouldCollapse = window.innerWidth < 1280;
     setUseHamburger(shouldCollapse);
@@ -91,7 +86,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     return () => window.removeEventListener("resize", updateUseHamburger);
   }, [updateUseHamburger]);
 
-  // Measure navbar height (for placeholder when it becomes fixed)
   const measureNav = useCallback(() => {
     const h = navRef.current?.getBoundingClientRect().height ?? 0;
     setNavHeight(h);
@@ -103,7 +97,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     return () => window.removeEventListener("resize", measureNav);
   }, [measureNav]);
 
-  // NEW: Sticky mode triggers AFTER you scroll past the navbar's original spot
   useEffect(() => {
     const marker = markerRef.current;
     if (!marker) return;
@@ -111,14 +104,11 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        // When the marker (right after nav) is visible => nav is still in its "section" (not sticky)
-        // When marker is NOT visible (scrolled past) => nav becomes sticky/floating
         setIsSticky(!entry.isIntersecting);
       },
       {
         root: null,
         threshold: 0,
-        // Helps flip right when the marker hits the top edge
         rootMargin: "-1px 0px 0px 0px",
       }
     );
@@ -127,13 +117,25 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     return () => observer.disconnect();
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMenuOpen(false);
-    }
-  };
+  const scrollToSection = useCallback((id: string) => {
+    // Close menu first
+    setIsMenuOpen(false);
+    
+    // Wait for menu animation to start, then scroll
+    setTimeout(() => {
+      const element = document.getElementById(id);
+      if (element) {
+        const navOffset = 100; // Offset for fixed navbar
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    }, 100);
+  }, []);
 
   const handleProfileClick = () => {
     setIsMenuOpen(false);
@@ -151,7 +153,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
     router.push("/");
   };
 
-  // Profile / register button that stays OUTSIDE the hamburger
   const ProfileOrRegisterButton = () =>
     user ? (
       <div className="flex items-center gap-2">
@@ -180,12 +181,10 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
 
   return (
     <>
-      {/* Placeholder to prevent layout jump when nav becomes fixed */}
       {isSticky && navHeight > 0 ? (
         <div aria-hidden style={{ height: navHeight }} />
       ) : null}
 
-      {/* FIXED: Always use fixed positioning to prevent layout shift */}
       <nav
         ref={navRef}
         className="fixed z-50 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl"
@@ -199,7 +198,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
             scrolled || isSticky ? "bg-black/40 border-[#005287]/20" : ""
           }`}
         >
-          {/* Logo */}
           <div className="text-xl md:text-2xl font-bold tracking-tighter flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 rounded bg-[#005287] flex items-center justify-center">
               <Code className="w-5 h-5 text-white" />
@@ -210,9 +208,7 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
             <span className="sm:hidden text-[#005287]">IP'26</span>
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
-            {/* Desktop Nav: only show when NOT using hamburger */}
             {!useHamburger && (
               <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-white/80">
                 {NAV_ITEMS.map((item) => (
@@ -231,10 +227,8 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
               </div>
             )}
 
-            {/* Action button ALWAYS outside hamburger */}
             <ProfileOrRegisterButton />
 
-            {/* Hamburger toggle when cramped */}
             {useHamburger && (
               <button
                 className="p-2 text-white hover:text-[#005287] transition-colors"
@@ -251,13 +245,13 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
           </div>
         </div>
 
-        {/* Hamburger dropdown holds ONLY nav items */}
         <AnimatePresence>
           {useHamburger && isMenuOpen && (
             <motion.div
               initial={{ height: 0, opacity: 0, marginTop: 0 }}
               animate={{ height: "auto", opacity: 1, marginTop: 12 }}
               exit={{ height: 0, opacity: 0, marginTop: 0 }}
+              transition={{ duration: 0.2 }}
               className="overflow-hidden w-full"
             >
               <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4">
@@ -280,8 +274,6 @@ export function Navbar({ onRegisterClick }: { onRegisterClick?: () => void }) {
         </AnimatePresence>
       </nav>
 
-      {/* Marker placed right AFTER navbar.
-          Once it scrolls out of view, navbar becomes sticky. */}
       <div ref={markerRef} className="h-px w-full" style={{ marginTop: navHeight > 0 ? navHeight + 32 : 0 }} />
     </>
   );
