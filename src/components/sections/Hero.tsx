@@ -62,7 +62,7 @@ const SCHEDULE_DATA: ScheduleData = {
     "Day 3": {
       date: "Feb 4, 2026",
       events: [
-        { time: "9:00-9:30AM", activity: "Registration & Breakfast" },
+        { time: "9:00-9:30", activity: "Registration & Breakfast" },
         { time: "9:30-10:00", activity: "Welcoming Remarks – Zainab Al-Turaiki" },
         { time: "10:00-10:55", activity: "Presentations x 6 Teams" },
         { time: "10:55-11:05", activity: "Break" },
