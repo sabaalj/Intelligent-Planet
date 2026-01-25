@@ -2,13 +2,13 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCJNnssDjKbztqNlwvz5fyk3XXGpRPvBcY",
-  authDomain: "intelligent-planet.firebaseapp.com",
-  projectId: "intelligent-planet",
-  storageBucket: "intelligent-planet.firebasestorage.app",
-  messagingSenderId: "576055382292",
-  appId: "1:576055382292:web:ea551c81219f274587b201",
-  measurementId: "G-2F9RQX2D2F",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID!,
 };
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
