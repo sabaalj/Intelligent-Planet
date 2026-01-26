@@ -1,0 +1,6 @@
+{
+  "name": "netlify-plugin-secrets-scanner-config",
+  "version": "1.0.0",
+  "description": "Configures Netlify secrets scanner to allow Firebase API key",
+  "main": "index.js"
+}
