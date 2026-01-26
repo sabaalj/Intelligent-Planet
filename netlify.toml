@@ -1,0 +1,11 @@
+# Netlify configuration
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Local build plugin to configure secrets scanner for Firebase API key
+# Firebase Web API keys are intentionally public and need to be allowed
+[[plugins]]
+  package = "./netlify/plugins/secrets-scanner-config"
