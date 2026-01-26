@@ -41,104 +41,112 @@ const SCHEDULE_DATA: ScheduleData = {
     "Day 1": {
       date: "Feb 2, 2026",
       events: [
-        { time: "8:00 - 8:30", activity: "Registration" },
-        { time: "8:30 - 8:40", activity: "Welcome remarks – TBD" },
-        { time: "8:40 - 9:00", activity: "Opening remarks – Dr. Abdullah Sultan" },
-        { time: "9:00 - 11:55", activity: "Hackathon starts" },
-        { time: "12:00 - 13:10", activity: "Lunch Break" },
-        { time: "13:15 - 16:00", activity: "Hackathon - Continued" },
+        { time: "10:00 - 13:00", activity: "Ithra visit" },
+        { time: "13:30 - 14:30", activity: "Lunch" },
+        { time: "17:00 - 17:15", activity: "Hackathon check-in" },
+        { time: "17:30 - 18:00", activity: "Welcoming & coffee" },
+        { time: "18:00 - 19:00", activity: "Google cloud workshop" },
+        { time: "19:00 - 20:00", activity: "Dinner" },
       ],
     },
     "Day 2": {
       date: "Feb 3, 2026",
       events: [
-        {
-          time: "8:00 - 11:55",
-          activity: "-",
-        },
-        { time: "12:15 - 13:25", activity: "Lunch Break" },
-        {
-          time: "13:30 - 14:30",
-          activity:
-            "Google Cloud - Cognitive Design: Building next Generation of Solutions – Nizar Altoraif and Jithin S L",
-        },
-        { time: "14:30 - 16:00", activity: "Hackathon - Continued" },
-        { time: "16:00", activity: "Project Submission Deadline" },
+        { time: "12:30 - 13:30", activity: "Lunch Break" },
+        { time: "13:30 - 18:00", activity: "Hackathon session continuted" },
+        { time: "16:00", activity: "Hackathon Submission Deadline" },
       ],
     },
     "Day 3": {
       date: "Feb 4, 2026",
       events: [
         { time: "9:00-9:30", activity: "Registration & Breakfast" },
-        { time: "9:30-10:00", activity: "Welcoming Remarks – Zainab Al-Turaiki" },
+        { time: "9:30-10:00", activity: "Welcoming Remarks" },
         { time: "10:00-10:55", activity: "Presentations x 6 Teams" },
         { time: "10:55-11:05", activity: "Break" },
         { time: "11:05-12:00", activity: "Presentations x 6 Teams" },
         { time: "12:00-13:00", activity: "Lunch Break" },
         { time: "13:00-13:55", activity: "Presentations x 6 Teams" },
         { time: "13:55-14:05", activity: "Break" },
-        { time: "14:05-15:00", activity: "Presentations x 6 Teams" },
+        { time: "14:05-15:00", activity: "Presentations x 7 Teams" },
         { time: "15:00-15:20", activity: "Judging Evaluation" },
         { time: "15:20-16:00", activity: "Awards & Closing Ceremony" },
       ],
     },
   },
+
   "Building 78": {
     "Day 1": {
       date: "Feb 2, 2026",
       events: [{ time: "8:00 – 17:00", session: "-", speakers: "-" }],
     },
+
     "Day 2": {
       date: "Feb 3, 2026",
       events: [
-        { time: "8:00 - 8:30", session: "Registration", speakers: "-" },
-        { time: "8:30 - 8:40", session: "Welcome remarks", speakers: "Zainab" },
-        { time: "8:40 - 9:00", session: "Opening remarks", speakers: "Dr. Abdullah Sultan" },
-        { time: "9:00 - 9:20", session: "Keynote Presentation 1: Cyber security", speakers: "Aramco (TBD)" },
+        { time: "8:00 - 9:00", session: "Registration & Breakfast", speakers: "-" },
+        { time: "9:00 - 9:05", session: "Welcoming Remarks", speakers: "-" },
         {
-          time: "9:25 - 9:45",
-          session: "Keynote Presentation 2: AI For Humanity & Planet (AI, HUMAIN)",
-          speakers: "Dr. Abdulmotaleb Elsaddik",
+          time: "9:05 - 9:10",
+          session: "Opening Remarks",
+          speakers: "Dr. Abdullah Sultan, Dean, College of Computing and Mathematics, KFUPM",
         },
         {
-          time: "9:50 - 10:50",
-          session: "Panel 1: AI, Gaming & Innovation",
+          time: "9:10 - 9:25",
+          session: "Keynote Remarks",
+          speakers: "Dr. Mohammed Al-Saggaf, KFUPM President",
+        },
+        { time: "9:25 - 9:30", session: "Group Photo", speakers: "-" },
+        {
+          time: "9:30 - 9:50",
+          session: "Keynote Session",
+          speakers: "Mr. Abdulaziz Alshafi, Vice President of Security & Chief Information Security Officer, Aramco",
+        },
+        {
+          time: "9:55 - 10:15",
+          session: "Keynote Session",
+          speakers: "Dr. Abdulmotaleb Elsaddik, Head of Discovery and Innovation, HUMAIN",
+        },
+        {
+          time: "10:20 - 11:20",
+          session: "Panel: Responsible AI for Sustainable Innovation – Crawl, Walk and Run Strategy",
           speakers:
-            "Moderator: Dr. Alaa Khamis; Panelists: Dr. Abdulmotaleb Elsaddik (Humain); Rami Hilal Busbait (SAVVY); Abdullah Aldhallan (MCIT); Dr. Ruslan Mitkov (Lancaster University)",
-        },
-        { time: "10:50 - 11:00", session: "Coffee Break", speakers: "-" },
-        {
-          time: "11:05 - 11:25",
-          session: "Keynote Presentation 3: AI and NLP/Computational Linguistics",
-          speakers: "Dr. Ruslan Mitkov (Lancaster University)",
+            "Moderator: Dr. Alaa Khamis (KFUPM); Panelists: Dr. Ali M Abusina (Aramco); Dr. Mustafa Jarrar (Hamad Bin Khalifa University); Dr. Fahad Almsned (Eastern Health Cluster); Mr. Abdullah Aldhallan (MCIT); Mr. Abdulrahman Alanazi (GADD)",
         },
         {
-          time: "11:30 - 11:55",
-          session: "Keynote Presentation 4: Data science",
-          speakers: "Speaker: TBD (Backup: Qamar)",
-        },
-        { time: "12:00 - 13:10", session: "Lunch Break", speakers: "-" },
-        { time: "13:15 - 13:35", session: "Keynote Presentation 5", speakers: "Eid Alharbi (Aramco Digital)" },
-        {
-          time: "13:40 - 14:00",
-          session: "Keynote Presentation 6: Cybersecurity",
-          speakers: "Dr. Jacques Klein (University of Luxembourg)",
+          time: "11:25 - 11:45",
+          session: "Keynote Session",
+          speakers: "Dr. Ruslan Mitkov, Professor of AI and NLP/Computational Linguistics, Lancaster University",
         },
         {
-          time: "14:05 – 15:05",
-          session: "Panel 2: Semiconductors & Cyber-Physical Systems",
+          time: "11:45 - 12:10",
+          session: "Keynote Session",
+          speakers: "Dr. Usman Qamar, Professor, Mathematics, KFUPM",
+        },
+        { time: "12:10 - 13:30", session: "Lunch Break", speakers: "-" },
+        {
+          time: "13:30 - 13:50",
+          session: "Keynote Session",
+          speakers: "Mr. Eid Alharbi, President of Connectivity, Aramco Digital",
+        },
+        {
+          time: "13:55 - 14:15",
+          session: "Keynote Session",
+          speakers: "Dr. Jacques Klein, Professor of Software Security, University of Luxembourg",
+        },
+        {
+          time: "14:20 - 15:20",
+          session: "Panel: Semiconductors & Cyber-Physical Systems",
           speakers:
-            "Moderator: Khaled Al-Hawaj; Panelists: Abdullah Alshehri (SEMC); Dr. Salman Al-Fuhaid (KACST); Prof. Minghui Zhou (Peking University); Dr. Jacques Klein (University of Luxembourg)",
+            "Moderator: Dr. Muhamad Felemban (KFUPM); Panelists: Majed AlSalamah (Aramco); Abdullah Alshehri (SEMC); Dr. Salman Al-Fuhaid (KACST); Prof. Minghui Zhou (Peking University)",
         },
-        { time: "15:05 - 15:25", session: "Coffee Break", speakers: "-" },
-        {
-          time: "15:25 - 15:45",
-          session: "Keynote Presentation 7",
-          speakers: "Prof. Fadi J. Kurdahi (University of California, Irvine)",
-        },
-        { time: "15:50 - 16:10", session: "Keynote Presentation 8", speakers: "Yervant Zorian (Synopsys)" },
+        { time: "15:20 - 15:40", session: "Coffee Break", speakers: "-" },
+        { time: "15:40 - 16:00", session: "Keynote Session", speakers: "Prof. Fadi J. Kurdahi, University of California, Irvine" },
+        { time: "16:00 - 16:20", session: "Keynote Session", speakers: "Dr. Yervant Zorian, VP and Chief Architect, Synopsys" },
+        { time: "16:20 - 16:30", session: "Closing", speakers: "Dr. Abdullah Sultan, KFUPM" },
       ],
     },
+
     "Day 3": {
       date: "Feb 4, 2026",
       events: [{ time: "8:00 – 17:00", session: "-", speakers: "-" }],
