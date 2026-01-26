@@ -48,7 +48,7 @@ function Timeline() {
     },
     {
       title: "Start Hacking",
-      date: "TBD",
+      date: "23 January",
       description:
         "Gain access to resources, APIs, and Google Cloud tools to begin building.",
     },
