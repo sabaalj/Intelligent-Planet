@@ -147,7 +147,7 @@ export default function SpeakersSection() {
       {
         name: "Khalid Al Ohali",
         role: "Customer Engineering Manager",
-        imageSrc: "public/assets/khaled.png",
+        imageSrc: "/assets/khaled.png",
       },
       {
         name: "Dr. Abdulmotaleb Elsaddik",
@@ -182,7 +182,7 @@ export default function SpeakersSection() {
       {
         name: "Eng. Bader Almadi",
         role: "Google Cloud Country Manager",
-        imageSrc: "public/assets/1654067634569.png",
+        imageSrc: "/assets/1654067634569.png",
       },
     ],
     []
