@@ -115,11 +115,6 @@ export default function SpeakersSection() {
         imageSrc: "/assets/jac_kle.png",
       },
       {
-        name: "Dr. Naveed Sherwani",
-        role: "CEO, Epic Semi — Panelist (Semiconductor)",
-        imageSrc: "/assets/nav_sher.jpg",
-      },
-      {
         name: "Dr. Mohammed Alshekhly",
         role: "Chair of University Research Council, Gulf University (GU) — Judge",
         imageSrc: "/assets/moh_n.jpg",
@@ -150,19 +145,14 @@ export default function SpeakersSection() {
         imageSrc: "/assets/zorian_yervant.jpg",
       },
       {
-        name: "Rami Hilal Busbait",
-        role: "Head of Talent Management, SAVVY — Panelist (Gaming)",
-        imageSrc: "/assets/rami.png",
+        name: "Khalid Al Ohali",
+        role: "Customer Engineering Manager",
+        imageSrc: "public/assets/khaled.png",
       },
       {
         name: "Dr. Abdulmotaleb Elsaddik",
         role: "Head of Discovery and Innovation, HUMAIN — Speaker (AI/Data)",
         imageSrc: "/assets/abdulmotaleb.jpg",
-      },
-      {
-        name: "Abdullah Aldhallan",
-        role: "GM of Future Skills, MCIT — Panelist (AI)",
-        imageSrc: "/assets/aldhalaan.png",
       },
       {
         name: "Dr. Salman Al-Fuhaid",
@@ -188,6 +178,11 @@ export default function SpeakersSection() {
         name: "Dr. Fahad Almsned",
         role: "IRB Chair, Eastern Health Cluster — Panelist (Data/AI)",
         imageSrc: "/assets/fahad.jpg",
+      },
+      {
+        name: "Eng. Bader Almadi",
+        role: "Google Cloud Country Manager",
+        imageSrc: "public/assets/1654067634569.png",
       },
     ],
     []
