@@ -162,17 +162,90 @@ function VerticalGridAutoScroller({
   );
 }
 
-
 export default function TeamsSection() {
   const teams: Team[] = useMemo(
     () => [
       {
-        teamName: "Silico",
-        university: "Uniandes",
+        teamName: "Althil",
+        university: "UB",
         members: [
-          { name: "Sebastian", flag: "🇨🇴" },
-          { name: "Nicolas", flag: "🇨🇴" },
-          { name: "Clay", flag: "🇨🇴" },
+          { name: "Abdulelah", flag: "🇸🇦" },
+          { name: "Norah", flag: "🇸🇦" },
+          { name: "Sarah", flag: "🇸🇦" },
+        ],
+      },
+      {
+        teamName: "ARD AI",
+        university: "KFUPM",
+        members: [
+          { name: "Faizan", flag: "🇸🇦" },
+          { name: "Muhammad", flag: "🇸🇦" },
+          { name: "Saad", flag: "🇸🇦" },
+          { name: "Almaan", flag: "🇸🇦" },
+          { name: "Abdulaziz", flag: "🇸🇦" },
+        ],
+      },
+      {
+        teamName: "Binary Bros",
+        university: "EMU / KFUPM",
+        members: [
+          { name: "Rakan", flag: "🇺🇸" },
+          { name: "Kadense", flag: "🇺🇸" },
+          { name: "Alaan", flag: "🇺🇸" },
+          { name: "Mohamad", flag: "🇺🇸" },
+          { name: "Ziad", flag: "🇸🇦" },
+        ],
+      },
+      {
+        teamName: "CS X CE",
+        university: "KU",
+        members: [
+          { name: "Hayat", flag: "🇰🇼" },
+          { name: "Aya", flag: "🇰🇼" },
+          { name: "Entessar", flag: "🇰🇼" },
+          { name: "Mariam", flag: "🇰🇼" },
+          { name: "Chada", flag: "🇰🇼" },
+        ],
+      },
+      {
+        teamName: "EcoFlow",
+        university: "FUTMinna / FUTA",
+        members: [
+          { name: "Idris", flag: "🇳🇬" },
+          { name: "Muhammed", flag: "🇳🇬" },
+          { name: "Mustapha", flag: "🇳🇬" },
+          { name: "Abraham", flag: "🇳🇬" },
+        ],
+      },
+      {
+        teamName: "Geminions",
+        university: "NTU",
+        members: [
+          { name: "Yong", flag: "🇸🇬" },
+          { name: "Pavanraj", flag: "🇸🇬" },
+          { name: "Rui", flag: "🇸🇬" },
+          { name: "Junn", flag: "🇸🇬" },
+          { name: "Wen", flag: "🇸🇬" },
+        ],
+      },
+      {
+        teamName: "GPTify",
+        university: "ESPRIT",
+        members: [
+          { name: "Fares", flag: "🇹🇳" },
+          { name: "Oumayma", flag: "🇹🇳" },
+          { name: "Mohamed", flag: "🇹🇳" },
+        ],
+      },
+      {
+        teamName: "Groot",
+        university: "UoM",
+        members: [
+          { name: "Mahmoud", flag: "🇬🇧" },
+          { name: "Muhammed", flag: "🇬🇧" },
+          { name: "Muhammed", flag: "🇬🇧" },
+          { name: "Abdelbasit", flag: "🇬🇧" },
+          { name: "Noureldin", flag: "🇬🇧" },
         ],
       },
       {
@@ -180,29 +253,101 @@ export default function TeamsSection() {
         university: "REC",
         members: [
           { name: "Naveen", flag: "🇮🇳" },
-          { name: "Ranjith", flag: "🇮🇳" },
-          { name: "Gokul", flag: "🇮🇳" },
-          { name: "Akshaya", flag: "🇮🇳" },
+          { name: "Subbaiya", flag: "🇮🇳" },
+          { name: "Swathi", flag: "🇮🇳" },
+          { name: "Vishali", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "IntelliGents",
+        university: "BU",
+        members: [
+          { name: "Faith", flag: "🇵🇭" },
+          { name: "Aran", flag: "🇵🇭" },
+          { name: "Ian", flag: "🇵🇭" },
+          { name: "Jeff", flag: "🇵🇭" },
+        ],
+      },
+      {
+        teamName: "KRYS",
+        university: "ITB",
+        members: [
+          { name: "Muhammad", flag: "🇮🇩" },
+          { name: "Muhammad", flag: "🇮🇩" },
+          { name: "Muhammad", flag: "🇮🇩" },
+        ],
+      },
+      {
+        teamName: "Manara",
+        university: "SU / GUtech",
+        members: [
+          { name: "Sree", flag: "🇴🇲" },
+          { name: "Jarif", flag: "🇴🇲" },
+          { name: "Moonis", flag: "🇴🇲" },
+          { name: "Abdulwahed", flag: "🇴🇲" },
+          { name: "Khalsa", flag: "🇴🇲" },
+        ],
+      },
+      {
+        teamName: "Mangroovers",
+        university: "NTHU / IVE / UoA / UoB / CUHK",
+        members: [
+          { name: "Ching", flag: "🇹🇼" },
+          { name: "Long", flag: "🇭🇰" },
+          { name: "Yuet", flag: "🇳🇿" },
+          { name: "Yan", flag: "🇬🇧" },
+          { name: "Cheuk", flag: "🇭🇰" },
         ],
       },
       {
         teamName: "Neurostars",
         university: "RIT",
         members: [
-          { name: "Sakshi", flag: "🇮🇳" },
-          { name: "Pranali", flag: "🇮🇳" },
-          { name: "Ashutosh", flag: "🇮🇳" },
-          { name: "Gaurav", flag: "🇮🇳" },
+          { name: "Vaishnavi", flag: "🇮🇳" },
+          { name: "Abhishek", flag: "🇮🇳" },
+          { name: "Atharv", flag: "🇮🇳" },
+          { name: "Ganesh", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "Nova",
+        university: "KU",
+        members: [
+          { name: "Osama", flag: "🇰🇼" },
+          { name: "Thamer", flag: "🇰🇼" },
+          { name: "Abdel Rahman", flag: "🇰🇼" },
+          { name: "Abubakr", flag: "🇰🇼" },
+          { name: "Abdallah", flag: "🇰🇼" },
+        ],
+      },
+      {
+        teamName: "Oxigeneers",
+        university: "KFUPM",
+        members: [
+          { name: "Raha", flag: "🇸🇦" },
+          { name: "Ola", flag: "🇸🇦" },
+          { name: "Marym", flag: "🇸🇦" },
+          { name: "Jood", flag: "🇸🇦" },
         ],
       },
       {
         teamName: "Palm Guardians",
         university: "VLITS / GU",
         members: [
-          { name: "Karthik", flag: "🇮🇳" },
-          { name: "Nithin", flag: "🇮🇳" },
-          { name: "Naveen", flag: "🇮🇳" },
-          { name: "Sumanth", flag: "🇮🇳" },
+          { name: "Rishyanth", flag: "🇮🇳" },
+          { name: "Anas", flag: "🇮🇳" },
+          { name: "Eswar", flag: "🇮🇳" },
+          { name: "Akash", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "PalmPulse",
+        university: "UC Berkeley / SXC",
+        members: [
+          { name: "Faisal", flag: "🇺🇸" },
+          { name: "Jacob", flag: "🇺🇸" },
+          { name: "Shaurya", flag: "🇺🇸" },
+          { name: "Sushant", flag: "🇳🇵" },
         ],
       },
       {
@@ -213,6 +358,24 @@ export default function TeamsSection() {
           { name: "Nupur", flag: "🇮🇳" },
           { name: "Vivek", flag: "🇮🇳" },
           { name: "Amrit", flag: "🇮🇳" },
+        ],
+      },
+      {
+        teamName: "Road Musketeers",
+        university: "UniMiB",
+        members: [
+          { name: "Horia", flag: "🇮🇹" },
+          { name: "Mohammad", flag: "🇮🇹" },
+          { name: "Abdul Hadi", flag: "🇮🇹" },
+        ],
+      },
+      {
+        teamName: "Silico",
+        university: "Uniandes",
+        members: [
+          { name: "Sebastian", flag: "🇨🇴" },
+          { name: "Nicolas", flag: "🇨🇴" },
+          { name: "Clay", flag: "🇨🇴" },
         ],
       },
       {
@@ -228,196 +391,32 @@ export default function TeamsSection() {
         teamName: "VibsOS2030",
         university: "MU",
         members: [
-          { name: "Nimesh", flag: "🇮🇳" },
-          { name: "Pratham", flag: "🇮🇳" },
-          { name: "Ansh", flag: "🇮🇳" },
-          { name: "Jainam", flag: "🇮🇳" },
-          { name: "Pranay", flag: "🇮🇳" },
-        ],
-      },
-      {
-        teamName: "KRYS",
-        university: "ITB",
-        members: [
-          { name: "Rizky", flag: "🇮🇩" },
-          { name: "Muhammad", flag: "🇮🇩" },
-          { name: "Daffa", flag: "🇮🇩" },
-        ],
-      },
-      {
-        teamName: "Road Musketeers",
-        university: "UniMiB",
-        members: [
-          { name: "Federico", flag: "🇮🇹" },
-          { name: "Giulia", flag: "🇮🇹" },
-          { name: "Giorgia", flag: "🇮🇹" },
-        ],
-      },
-      {
-        teamName: "CS X CE",
-        university: "KU",
-        members: [
-          { name: "Sara", flag: "🇰🇼" },
-          { name: "Abdullah", flag: "🇰🇼" },
-          { name: "Fahad", flag: "🇰🇼" },
-          { name: "Noor", flag: "🇰🇼" },
-          { name: "Yousef", flag: "🇰🇼" },
-        ],
-      },
-      {
-        teamName: "Nova",
-        university: "KU",
-        members: [
-          { name: "Fatima", flag: "🇰🇼" },
-          { name: "Abdullah", flag: "🇰🇼" },
-          { name: "Fahad", flag: "🇰🇼" },
-          { name: "Noor", flag: "🇰🇼" },
-          { name: "Yousef", flag: "🇰🇼" },
-        ],
-      },
-      {
-        teamName: "EcoFlow",
-        university: "FUTMinna / FUTA",
-        members: [
-          { name: "Aminat", flag: "NG" }, // code works
-          { name: "Samuel", flag: "NG" },
-          { name: "Tobiloba", flag: "NG" },
-          { name: "Fatimah", flag: "NG" },
-        ],
-      },
-      {
-        teamName: "Manara",
-        university: "SU / GUtech",
-        members: [
-          { name: "Aisha", flag: "OM" }, // code works
-          { name: "Fatma", flag: "OM" },
-          { name: "Amal", flag: "OM" },
-          { name: "Muna", flag: "OM" },
-          { name: "Noor", flag: "OM" },
-        ],
-      },
-      {
-        teamName: "GeoGemma",
-        university: "IST",
-        members: [
-          { name: "Hassan", flag: "PK" },
-          { name: "Ahmad", flag: "PK" },
-          { name: "Muhammad", flag: "PK" },
-          { name: "Ayesha", flag: "PK" },
-        ],
-      },
-      {
-        teamName: "IntelliGents",
-        university: "BU",
-        members: [
-          { name: "John", flag: "PH" },
-          { name: "Mark", flag: "PH" },
-          { name: "Patricia", flag: "PH" },
-          { name: "Angela", flag: "PH" },
-        ],
-      },
-      {
-        teamName: "Althil",
-        university: "UB",
-        members: [
-          { name: "Mohammed", flag: "SA" },
-          { name: "Abdulrahman", flag: "SA" },
-          { name: "Abdullah", flag: "SA" },
-        ],
-      },
-      {
-        teamName: "ARD AI",
-        university: "KFUPM",
-        members: [
-          { name: "Abdullah", flag: "SA" },
-          { name: "Hussam", flag: "SA" },
-          { name: "Sultan", flag: "SA" },
-          { name: "Abdulaziz", flag: "SA" },
-          { name: "Fahad", flag: "SA" },
-        ],
-      },
-      {
-        teamName: "Oxigeneers",
-        university: "KFUPM",
-        members: [
-          { name: "Hussam", flag: "SA" },
-          { name: "Hassan", flag: "SA" },
-          { name: "Abdulaziz", flag: "SA" },
-          { name: "Sultan", flag: "SA" },
+          { name: "Sahil", flag: "🇮🇳" },
+          { name: "Sneha", flag: "🇮🇳" },
+          { name: "Mitang", flag: "🇮🇳" },
+          { name: "Shriya", flag: "🇮🇳" },
+          { name: "Meet", flag: "🇮🇳" },
         ],
       },
       {
         teamName: "VisionRain",
         university: "KAU",
         members: [
-          { name: "Abeer", flag: "SA" },
-          { name: "Lama", flag: "SA" },
-          { name: "Zainab", flag: "SA" },
-          { name: "Alaa", flag: "SA" },
-          { name: "Nour", flag: "SA" },
+          { name: "Nessrene", flag: "🇸🇦" },
+          { name: "Syeda", flag: "🇸🇦" },
+          { name: "Taiba", flag: "🇸🇦" },
+          { name: "Lamia", flag: "🇸🇦" },
+          { name: "Rudhainah", flag: "🇸🇦" },
         ],
       },
       {
-        teamName: "Geminions",
-        university: "NTU",
+        teamName: "GeoGemma",
+        university: "IST",
         members: [
-          { name: "Shannon", flag: "SG" },
-          { name: "Jeremy", flag: "SG" },
-          { name: "Darren", flag: "SG" },
-          { name: "Ethan", flag: "SG" },
-          { name: "Nicole", flag: "SG" },
-        ],
-      },
-      {
-        teamName: "Mangroovers",
-        university: "NTHU / IVE / UoA / UoB / CUHK",
-        members: [
-          { name: "Ching", flag: "TW" },
-          { name: "Wing", flag: "HK" },
-          { name: "Kirsten", flag: "NZ" },
-          { name: "Katherine", flag: "GB" },
-          { name: "Chloe", flag: "HK" },
-        ],
-      },
-      {
-        teamName: "GPTify",
-        university: "ESPRIT",
-        members: [
-          { name: "Mohamed", flag: "TN" },
-          { name: "Ons", flag: "TN" },
-          { name: "Marwa", flag: "TN" },
-        ],
-      },
-      {
-        teamName: "Groot",
-        university: "UoM",
-        members: [
-          { name: "Yousef", flag: "GB" },
-          { name: "Abdullah", flag: "GB" },
-          { name: "Nasser", flag: "GB" },
-          { name: "Fahad", flag: "GB" },
-          { name: "Turki", flag: "GB" },
-        ],
-      },
-      {
-        teamName: "PalmPulse",
-        university: "UC Berkeley / SXC",
-        members: [
-          { name: "Catherine", flag: "US" },
-          { name: "Niranjan", flag: "US" },
-          { name: "Daniel", flag: "US" },
-          { name: "Sanjay", flag: "NP" },
-        ],
-      },
-      {
-        teamName: "Binary Bros",
-        university: "EMU / KFUPM",
-        members: [
-          { name: "Mohammad", flag: "US" },
-          { name: "Zaid", flag: "US" },
-          { name: "Ali", flag: "US" },
-          { name: "Ammar", flag: "US" },
-          { name: "Abdullah", flag: "SA" },
+          { name: "Khalil", flag: "🇵🇰" },
+          { name: "Ahmed", flag: "🇵🇰" },
+          { name: "Muhammad", flag: "🇵🇰" },
+          { name: "Hanzila", flag: "🇵🇰" },
         ],
       },
     ],
