@@ -126,7 +126,7 @@ export default function Judges() {
       },
       {
         name: "Alwaleed Alkhodairi",
-        role: "Lecturer in Computer Science KFUPM",
+        role: "Assistant professor in ICS",
         imageSrc: "/assets/alwaleed.jpg",
       }
     ],

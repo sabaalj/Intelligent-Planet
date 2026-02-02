@@ -146,7 +146,7 @@ export default function SpeakersSection() {
       },
       {
         name: "Khalid Al Ohali",
-        role: "Customer Engineering Manager",
+        role: "Head of Customer Engineering KSA Google Cloud",
         imageSrc: "/assets/khaloodi.png",
       },
       {
