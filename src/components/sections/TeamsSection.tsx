@@ -172,6 +172,7 @@ export default function TeamsSection() {
           { name: "Abdulelah", flag: "🇸🇦" },
           { name: "Norah", flag: "🇸🇦" },
           { name: "Sarah", flag: "🇸🇦" },
+          { name: "Joud", flag: "🇸🇦" },
         ],
       },
       {
